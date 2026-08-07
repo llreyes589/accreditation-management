@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $accredited_until
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Institution $institution
+ * @property-read Institution|null $institution
  */
 #[Fillable([
     'institution_id',

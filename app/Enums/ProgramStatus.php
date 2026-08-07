@@ -27,4 +27,12 @@ enum ProgramStatus: string
             self::Withdrawn => 'Withdrawn',
         };
     }
+
+    /**
+     * Whether a program in this state may be used for a new application.
+     */
+    public function isSelectableForApplication(): bool
+    {
+        return in_array($this, [self::Active, self::Accredited], true);
+    }
 }

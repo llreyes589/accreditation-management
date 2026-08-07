@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\ApplicationType;
 use App\Enums\InstitutionStatus;
 use App\Enums\ProgramStatus;
 use App\Enums\ProgramType;
 use App\Enums\RoleName;
+use App\Enums\WizardStep;
 use App\Models\AccreditationApplication;
 use App\Models\Institution;
 use App\Models\Program;
@@ -78,12 +80,17 @@ class FoundationDemoSeeder extends Seeder
         $this->assignRole($trainingOfficer, RoleName::TrainingOfficer, $institution->id);
 
         AccreditationApplication::updateOrCreate(
-            ['reference' => 'DEMO-APP-0001'],
+            ['application_reference' => 'DEMO-APP-0001'],
             [
                 'institution_id' => $institution->id,
                 'program_id' => $program->id,
+                'application_type' => ApplicationType::New,
+                'checklist_version' => config('accreditation.checklist_version'),
                 'cycle_label' => 'Initial application',
                 'status' => ApplicationStatus::Draft,
+                'current_step' => WizardStep::ProgramSelection,
+                'completion_percentage' => 0,
+                'created_by' => $institutionAdmin->id,
             ],
         );
     }

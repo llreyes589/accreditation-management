@@ -4,9 +4,6 @@ namespace App\Enums;
 
 /**
  * Action vocabulary for the append-only audit log.
- *
- * Only actions reachable in the foundation milestone are listed; further
- * actions are added as their workflows are implemented.
  */
 enum AuditAction: string
 {
@@ -17,4 +14,13 @@ enum AuditAction: string
     case RoleAssigned = 'role_assigned';
     case RoleRevoked = 'role_revoked';
     case ConfigurationChanged = 'configuration_changed';
+
+    // Accreditation application wizard.
+    case ApplicationCreated = 'application_created';
+    case ApplicationStepSaved = 'application_step_saved';
+    case ChecklistResponseChanged = 'checklist_response_changed';
+    case DeclarationAccepted = 'declaration_accepted';
+    case ApplicationSubmitted = 'application_submitted';
+    case ApplicationWithdrawn = 'application_withdrawn';
+    case ApplicationReturned = 'application_returned';
 }

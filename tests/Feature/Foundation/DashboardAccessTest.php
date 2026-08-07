@@ -34,7 +34,7 @@ class DashboardAccessTest extends TestCase
 
         $program->accreditationApplications()->create([
             'institution_id' => $institution->id,
-            'reference' => 'APP-TEST-0001',
+            'application_reference' => 'APP-TEST-0001',
             'status' => 'draft',
         ]);
 
@@ -71,7 +71,7 @@ class DashboardAccessTest extends TestCase
 
         $otherProgram->accreditationApplications()->create([
             'institution_id' => $other->id,
-            'reference' => 'APP-OTHER-0001',
+            'application_reference' => 'APP-OTHER-0001',
             'status' => 'draft',
         ]);
 

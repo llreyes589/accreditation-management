@@ -2,7 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Enums\RequirementResponseStatus;
+use App\Enums\ApplicantResponseStatus;
+use App\Enums\ReviewerResponseStatus;
 use App\Models\AccreditationApplication;
 use App\Models\ApplicationRequirement;
 use App\Models\ChecklistRequirement;
@@ -23,11 +24,33 @@ class ApplicationRequirementFactory extends Factory
         return [
             'accreditation_application_id' => AccreditationApplication::factory(),
             'checklist_requirement_id' => ChecklistRequirement::factory(),
-            'status' => RequirementResponseStatus::NotStarted,
-            'response' => null,
+            'applicant_status' => ApplicantResponseStatus::NotStarted,
+            'applicant_response' => null,
+            'applicant_explanation' => null,
+            'responded_at' => null,
+            'responded_by' => null,
+            'reviewer_status' => ReviewerResponseStatus::Pending,
             'reviewer_comment' => null,
             'reviewed_by' => null,
             'reviewed_at' => null,
         ];
+    }
+
+    public function complete(): self
+    {
+        return $this->state(fn (): array => [
+            'applicant_status' => ApplicantResponseStatus::Complete,
+            'applicant_response' => 'Synthetic response for testing.',
+            'responded_at' => now(),
+        ]);
+    }
+
+    public function notApplicable(?string $explanation = 'Not applicable to this program.'): self
+    {
+        return $this->state(fn (): array => [
+            'applicant_status' => ApplicantResponseStatus::NotApplicable,
+            'applicant_explanation' => $explanation,
+            'responded_at' => now(),
+        ]);
     }
 }
