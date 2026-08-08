@@ -23,4 +23,20 @@ enum AuditAction: string
     case ApplicationSubmitted = 'application_submitted';
     case ApplicationWithdrawn = 'application_withdrawn';
     case ApplicationReturned = 'application_returned';
+
+    // Configurable checklist administration.
+    case ChecklistVersionCreated = 'checklist_version_created';
+    case ChecklistVersionCloned = 'checklist_version_cloned';
+    case ChecklistVersionPublished = 'checklist_version_published';
+    case ChecklistVersionRetired = 'checklist_version_retired';
+    case ChecklistVersionDeleted = 'checklist_version_deleted';
+    case ChecklistSectionCreated = 'checklist_section_created';
+    case ChecklistSectionUpdated = 'checklist_section_updated';
+    case ChecklistSectionReordered = 'checklist_section_reordered';
+    case ChecklistSectionDeactivated = 'checklist_section_deactivated';
+    case ChecklistRequirementCreated = 'checklist_requirement_created';
+    case ChecklistRequirementUpdated = 'checklist_requirement_updated';
+    case ChecklistRequirementReordered = 'checklist_requirement_reordered';
+    case ChecklistRequirementDeactivated = 'checklist_requirement_deactivated';
+    case ChecklistVersionPublishBlocked = 'checklist_version_publish_blocked';
 }

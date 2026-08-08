@@ -85,4 +85,12 @@ class ApplicationSubmissionException extends RuntimeException
             'program_id',
         );
     }
+
+    public static function noChecklistVersion(): self
+    {
+        return new self(
+            'No published checklist version is available for this program type. Contact a PSP administrator.',
+            'program_id',
+        );
+    }
 }

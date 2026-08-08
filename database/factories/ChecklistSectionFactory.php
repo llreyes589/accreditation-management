@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\ChecklistSection;
+use App\Models\ChecklistVersion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,9 +19,10 @@ class ChecklistSectionFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => strtoupper(fake()->unique()->bothify('SEC-###')),
-            'title' => fake()->unique()->sentence(3),
-            'description' => fake()->sentence(),
+            'checklist_version_id' => ChecklistVersion::factory(),
+            'code' => strtoupper(fake()->unique()->bothify('SEC-####')),
+            'title' => fake()->words(3, true),
+            'description' => null,
             'position' => fake()->numberBetween(0, 20),
             'is_active' => true,
         ];

@@ -129,6 +129,21 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Whether the user may administer the configurable accreditation checklist
+     * (create, edit, publish, retire, clone, delete versions).
+     *
+     * Per the accreditation specification, only PSP administrators and
+     * authorized CART reviewers hold this remit.
+     */
+    public function canAdministerChecklist(): bool
+    {
+        return $this->hasAnyRole([
+            RoleName::PspAdministrator,
+            RoleName::CartReviewer,
+        ]);
+    }
+
+    /**
      * Whether the user's remit spans institutions (PSP, CART, inspector, auditor).
      */
     public function hasCrossInstitutionRole(): bool

@@ -14,6 +14,7 @@ use App\Models\ApplicationRequirement;
 use App\Models\Program;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\ChecklistVersionService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,6 +30,7 @@ class ApplicationWizardService
         private readonly ApplicationProgressCalculator $progress,
         private readonly ChecklistResponseSynchronizer $checklist,
         private readonly ApplicationReferenceGenerator $references,
+        private readonly ChecklistVersionService $versions,
         private readonly AuditLogger $audit,
     ) {}
 
@@ -42,12 +44,21 @@ class ApplicationWizardService
                 throw ApplicationSubmissionException::duplicateActiveApplication();
             }
 
+            // Freeze the published checklist edition for the life of the
+            // application. Institution users cannot choose an arbitrary
+            // version; the system assigns the current published one.
+            $version = $this->versions->publishedVersionForProgramType($program->program_type);
+
+            if ($version === null) {
+                throw ApplicationSubmissionException::noChecklistVersion();
+            }
+
             $application = AccreditationApplication::create([
                 'institution_id' => $program->institution_id,
                 'program_id' => $program->id,
                 'application_type' => $type,
-                // Freeze the checklist edition for the life of the application.
-                'checklist_version' => config('accreditation.checklist_version'),
+                'checklist_version' => $version->version_code,
+                'checklist_version_id' => $version->id,
                 'application_reference' => $this->references->generate($program),
                 'status' => ApplicationStatus::Draft,
                 'current_step' => WizardStep::ApplicationDetails,

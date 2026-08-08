@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\ProgramType;
+use App\Enums\RequirementResponseType;
 use App\Enums\RequirementSeverity;
 use App\Models\ChecklistRequirement;
 use App\Models\ChecklistSection;
+use App\Models\ChecklistVersion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,8 +24,9 @@ use Illuminate\Database\Seeder;
  * this seeder breaks no application code: the wizard reads whatever the
  * checklist tables contain.
  *
- * When the real content lands, bump `accreditation.checklist_version` so that
- * in-flight applications keep the edition they were created against.
+ * When the real content lands, create a new checklist version from this seed
+ * data and publish it; in-flight applications keep the edition they were
+ * created against.
  */
 class SyntheticChecklistSeeder extends Seeder
 {
@@ -36,34 +39,57 @@ class SyntheticChecklistSeeder extends Seeder
 
     public function run(): void
     {
-        foreach ($this->sections() as $position => $section) {
-            $sectionModel = ChecklistSection::updateOrCreate(
-                ['code' => self::CODE_PREFIX.'-'.$section['code']],
+        // One published synthetic version per program type so every program
+        // type has an applicable checklist to start applications against.
+        foreach (ProgramType::cases() as $programType) {
+            $version = ChecklistVersion::firstOrCreate(
+                ['version_code' => self::CODE_PREFIX.'-'.$programType->value],
                 [
-                    'title' => $section['title'],
-                    'description' => '[SYNTHETIC PLACEHOLDER] '.$section['description'],
-                    'position' => $position,
-                    'is_active' => true,
+                    'name' => 'Synthetic Checklist ('.ucfirst(str_replace('_', ' ', $programType->value)).')',
+                    'description' => '[SYNTHETIC PLACEHOLDER] Demonstration checklist.',
+                    'program_type' => $programType->value,
+                    'status' => 'published',
+                    'published_at' => now(),
                 ],
             );
 
-            foreach ($section['requirements'] as $index => $requirement) {
-                ChecklistRequirement::updateOrCreate(
-                    ['code' => self::CODE_PREFIX.'-'.$requirement['code']],
+            foreach ($this->sections() as $position => $section) {
+                $sectionModel = ChecklistSection::updateOrCreate(
                     [
-                        'checklist_section_id' => $sectionModel->id,
-                        'requirement' => '[SYNTHETIC] '.$requirement['text'],
-                        'guidance' => $requirement['guidance'] ?? null,
-                        'severity' => $requirement['severity'],
-                        'weight' => $requirement['weight'] ?? 1,
-                        'pass_threshold' => null,
-                        'is_mandatory' => $requirement['mandatory'] ?? false,
-                        'is_reviewer_only' => $requirement['reviewer_only'] ?? false,
-                        'applicable_program_types' => $requirement['program_types'] ?? null,
-                        'position' => $index,
+                        'checklist_version_id' => $version->id,
+                        'code' => self::CODE_PREFIX.'-'.$section['code'],
+                    ],
+                    [
+                        'title' => $section['title'],
+                        'description' => '[SYNTHETIC PLACEHOLDER] '.$section['description'],
+                        'position' => $position,
                         'is_active' => true,
                     ],
                 );
+
+                foreach ($section['requirements'] as $index => $requirement) {
+                    ChecklistRequirement::updateOrCreate(
+                        [
+                            'checklist_version_id' => $version->id,
+                            'code' => self::CODE_PREFIX.'-'.$requirement['code'],
+                        ],
+                        [
+                            'checklist_section_id' => $sectionModel->id,
+                            'requirement' => '[SYNTHETIC] '.$requirement['text'],
+                            'guidance' => $requirement['guidance'] ?? null,
+                            'response_type' => $requirement['response_type'] ?? RequirementResponseType::Text->value,
+                            'severity' => $requirement['severity'],
+                            'weight' => $requirement['weight'] ?? 1,
+                            'pass_threshold' => null,
+                            'is_mandatory' => $requirement['mandatory'] ?? false,
+                            'is_reviewer_only' => $requirement['reviewer_only'] ?? false,
+                            'requires_document' => $requirement['requires_document'] ?? false,
+                            'applicable_program_types' => $requirement['program_types'] ?? null,
+                            'position' => $index,
+                            'is_active' => true,
+                        ],
+                    );
+                }
             }
         }
     }
@@ -102,6 +128,7 @@ class SyntheticChecklistSeeder extends Seeder
                         'text' => 'Reviewer verification of governance documentation completeness.',
                         'severity' => RequirementSeverity::Informational,
                         'reviewer_only' => true,
+                        'response_type' => RequirementResponseType::Acknowledgement->value,
                     ],
                 ],
             ],

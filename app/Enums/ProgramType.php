@@ -23,4 +23,12 @@ enum ProgramType: string
             self::CombinedPathology => 'Combined Anatomic and Clinical Pathology',
         };
     }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

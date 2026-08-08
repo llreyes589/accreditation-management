@@ -2,9 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Enums\RequirementResponseType;
 use App\Enums\RequirementSeverity;
 use App\Models\ChecklistRequirement;
 use App\Models\ChecklistSection;
+use App\Models\ChecklistVersion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,15 +25,18 @@ class ChecklistRequirementFactory extends Factory
     public function definition(): array
     {
         return [
+            'checklist_version_id' => ChecklistVersion::factory(),
             'checklist_section_id' => ChecklistSection::factory(),
             'code' => strtoupper(fake()->unique()->bothify('REQ-####')),
             'requirement' => fake()->sentence(10),
             'guidance' => null,
+            'response_type' => RequirementResponseType::Text,
             'severity' => RequirementSeverity::Minor,
             'weight' => 1,
             'pass_threshold' => null,
             'is_mandatory' => false,
             'is_reviewer_only' => false,
+            'requires_document' => false,
             'applicable_program_types' => null,
             'position' => fake()->numberBetween(0, 20),
             'is_active' => true,

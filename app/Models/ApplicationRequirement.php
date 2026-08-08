@@ -37,6 +37,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'accreditation_application_id',
     'checklist_requirement_id',
+    'checklist_version_id',
     'applicant_status',
     'applicant_response',
     'applicant_explanation',
@@ -76,6 +77,12 @@ class ApplicationRequirement extends Model
     public function requirement(): BelongsTo
     {
         return $this->belongsTo(ChecklistRequirement::class, 'checklist_requirement_id');
+    }
+
+    /** @return BelongsTo<ChecklistVersion, $this> */
+    public function version(): BelongsTo
+    {
+        return $this->belongsTo(ChecklistVersion::class, 'checklist_version_id');
     }
 
     /** @return BelongsTo<User, $this> */

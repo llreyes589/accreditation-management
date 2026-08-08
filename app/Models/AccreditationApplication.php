@@ -48,6 +48,7 @@ use Illuminate\Support\Carbon;
     'program_id',
     'application_type',
     'checklist_version',
+    'checklist_version_id',
     'application_reference',
     'cycle_label',
     'status',
@@ -82,6 +83,12 @@ class AccreditationApplication extends Model
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);
+    }
+
+    /** @return BelongsTo<ChecklistVersion, $this> */
+    public function checklistVersion(): BelongsTo
+    {
+        return $this->belongsTo(ChecklistVersion::class, 'checklist_version_id');
     }
 
     /** @return BelongsTo<User, $this> */
@@ -159,6 +166,7 @@ class AccreditationApplication extends Model
             'status' => ApplicationStatus::class,
             'current_step' => WizardStep::class,
             'completion_percentage' => 'integer',
+            'checklist_version_id' => 'integer',
             'program_details' => 'array',
             'institution_information' => 'array',
             'leadership_staffing' => 'array',

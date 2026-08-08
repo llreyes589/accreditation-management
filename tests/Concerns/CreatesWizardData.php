@@ -5,10 +5,12 @@ namespace Tests\Concerns;
 use App\Enums\ApplicantResponseStatus;
 use App\Enums\ProgramStatus;
 use App\Enums\ProgramType;
+use App\Enums\RequirementResponseType;
 use App\Enums\RequirementSeverity;
 use App\Models\AccreditationApplication;
 use App\Models\ChecklistRequirement;
 use App\Models\ChecklistSection;
+use App\Models\ChecklistVersion;
 use App\Models\Institution;
 use App\Models\Program;
 use App\Models\User;
@@ -23,12 +25,24 @@ trait CreatesWizardData
 {
     protected function activeProgram(?Institution $institution = null): Program
     {
-        return Program::factory()
+        $program = Program::factory()
             ->for($institution ?? Institution::factory())
             ->create([
                 'program_type' => ProgramType::CombinedPathology,
                 'status' => ProgramStatus::Active,
             ]);
+
+        // Ensure a published checklist version exists for the program type,
+        // mirroring the seeded production configuration. Without it the wizard
+        // cannot resolve a version to freeze onto the application.
+        if (! ChecklistVersion::query()->published()->forProgramType($program->program_type)->exists()) {
+            ChecklistVersion::factory()->published()->create([
+                'version_code' => 'TEST-'.$program->program_type->value,
+                'program_type' => $program->program_type,
+            ]);
+        }
+
+        return $program;
     }
 
     /**
@@ -38,7 +52,13 @@ trait CreatesWizardData
      */
     protected function synthChecklist(): array
     {
+        $version = ChecklistVersion::factory()->published()->create([
+            'version_code' => 'SYN-WIZ',
+            'program_type' => ProgramType::CombinedPathology,
+        ]);
+
         $section = ChecklistSection::factory()->create([
+            'checklist_version_id' => $version->id,
             'title' => 'Synthetic Section',
             'position' => 0,
         ]);
@@ -46,19 +66,56 @@ trait CreatesWizardData
         return [
             'section' => $section,
             'mandatory' => ChecklistRequirement::factory()->for($section, 'section')->mandatory()->create([
+                'checklist_version_id' => $version->id,
                 'requirement' => '[SYNTHETIC] Mandatory requirement for testing.',
+                'response_type' => RequirementResponseType::Text,
                 'position' => 0,
             ]),
             'optional' => ChecklistRequirement::factory()->for($section, 'section')->create([
+                'checklist_version_id' => $version->id,
                 'requirement' => '[SYNTHETIC] Optional requirement for testing.',
                 'severity' => RequirementSeverity::Minor,
+                'response_type' => RequirementResponseType::Text,
                 'position' => 1,
             ]),
             'reviewerOnly' => ChecklistRequirement::factory()->for($section, 'section')->reviewerOnly()->create([
+                'checklist_version_id' => $version->id,
                 'requirement' => '[SYNTHETIC] Reviewer-only requirement.',
+                'response_type' => RequirementResponseType::Text,
                 'position' => 2,
             ]),
         ];
+    }
+
+    /**
+     * Create a DRAFT checklist version with one section and two requirements,
+     * for exercising the administration screens.
+     *
+     * @return array{version: ChecklistVersion, section: ChecklistSection, requirement: ChecklistRequirement}
+     */
+    protected function draftChecklist(ProgramType $programType = ProgramType::CombinedPathology): array
+    {
+        $version = ChecklistVersion::factory()->create([
+            'version_code' => 'DRAFT-'.fake()->unique()->numerify('####'),
+            'program_type' => $programType,
+        ]);
+
+        $section = ChecklistSection::factory()->create([
+            'checklist_version_id' => $version->id,
+            'title' => 'Draft Section',
+            'code' => 'SEC-1',
+            'position' => 0,
+        ]);
+
+        $requirement = ChecklistRequirement::factory()->for($section, 'section')->create([
+            'checklist_version_id' => $version->id,
+            'code' => 'REQ-1',
+            'requirement' => '[SYNTHETIC] Draft requirement.',
+            'response_type' => RequirementResponseType::Text,
+            'position' => 0,
+        ]);
+
+        return ['version' => $version, 'section' => $section, 'requirement' => $requirement];
     }
 
     /**

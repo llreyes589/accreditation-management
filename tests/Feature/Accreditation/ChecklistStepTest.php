@@ -9,6 +9,7 @@ use App\Enums\RoleName;
 use App\Enums\WizardStep;
 use App\Models\AccreditationApplication;
 use App\Models\ChecklistRequirement;
+use App\Models\ChecklistVersion;
 use App\Models\Institution;
 use App\Services\Accreditation\ChecklistResponseSynchronizer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -214,7 +215,7 @@ class ChecklistStepTest extends TestCase
         $user = $this->userWithRole(RoleName::TrainingOfficer, $institution);
         $this->synthChecklist();
 
-        config(['accreditation.checklist_version' => '2026.1']);
+        $published = ChecklistVersion::where('version_code', 'SYN-WIZ')->firstOrFail();
 
         $this->actingAs($user)->post(route('applications.store'), [
             'program_id' => $program->id,
@@ -222,11 +223,12 @@ class ChecklistStepTest extends TestCase
         ]);
 
         $application = AccreditationApplication::firstOrFail();
-        $this->assertSame('2026.1', $application->checklist_version);
+        $this->assertSame('SYN-WIZ', $application->checklist_version);
+        $this->assertSame($published->id, $application->checklist_version_id);
 
         // Changing the configured version later must not alter the stored one.
         config(['accreditation.checklist_version' => '2027.0']);
 
-        $this->assertSame('2026.1', $application->refresh()->checklist_version);
+        $this->assertSame('SYN-WIZ', $application->refresh()->checklist_version);
     }
 }

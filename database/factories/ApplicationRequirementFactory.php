@@ -24,6 +24,7 @@ class ApplicationRequirementFactory extends Factory
         return [
             'accreditation_application_id' => AccreditationApplication::factory(),
             'checklist_requirement_id' => ChecklistRequirement::factory(),
+            'checklist_version_id' => null,
             'applicant_status' => ApplicantResponseStatus::NotStarted,
             'applicant_response' => null,
             'applicant_explanation' => null,
