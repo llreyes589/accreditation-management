@@ -15,6 +15,7 @@ use App\Models\Program;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\ChecklistVersionService;
+use App\Services\Documents\DocumentCompletenessService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -32,6 +33,7 @@ class ApplicationWizardService
         private readonly ApplicationReferenceGenerator $references,
         private readonly ChecklistVersionService $versions,
         private readonly AuditLogger $audit,
+        private readonly DocumentCompletenessService $documentCompleteness = new DocumentCompletenessService,
     ) {}
 
     /**
@@ -319,6 +321,14 @@ class ApplicationWizardService
 
         if ($outstanding > 0) {
             throw ApplicationSubmissionException::incompleteChecklist($outstanding);
+        }
+
+        $documentSummary = $this->documentCompleteness->summary($application);
+
+        if ($documentSummary['total_required'] > 0 && ! $documentSummary['complete']) {
+            throw ApplicationSubmissionException::documentsIncomplete(
+                $documentSummary['missing'] + $documentSummary['rejected'] + $documentSummary['replacement_requested'],
+            );
         }
 
         if (! $application->declarationAccepted()) {

@@ -93,4 +93,12 @@ class ApplicationSubmissionException extends RuntimeException
             'program_id',
         );
     }
+
+    public static function documentsIncomplete(int $missing): self
+    {
+        return new self(
+            $missing.' required supporting document(s) are missing or not yet accepted.',
+            'documents',
+        );
+    }
 }

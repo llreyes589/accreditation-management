@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -83,6 +84,12 @@ class ApplicationRequirement extends Model
     public function version(): BelongsTo
     {
         return $this->belongsTo(ChecklistVersion::class, 'checklist_version_id');
+    }
+
+    /** @return HasMany<Document, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'application_requirement_id');
     }
 
     /** @return BelongsTo<User, $this> */

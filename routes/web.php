@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Accreditation\ApplicationController;
+use App\Http\Controllers\Accreditation\ApplicationDocumentController;
 use App\Http\Controllers\Accreditation\ApplicationWizardController;
 use App\Http\Controllers\Accreditation\ChecklistVersionController;
+use App\Http\Controllers\Accreditation\DocumentReviewController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,7 +41,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('withdraw');
             Route::get('confirmation', [ApplicationWizardController::class, 'confirmation'])
                 ->name('confirmation');
+
+            /*
+             * Applicant supporting documents (private storage, policy-gated).
+             */
+            Route::prefix('documents')->name('documents.')->group(function () {
+                Route::get('/', [ApplicationDocumentController::class, 'index'])->name('index');
+                Route::post('/', [ApplicationDocumentController::class, 'store'])->name('store');
+                Route::get('{document}', [ApplicationDocumentController::class, 'show'])->name('show');
+                Route::post('{document}/replace', [ApplicationDocumentController::class, 'replace'])->name('replace');
+                Route::post('{document}/withdraw', [ApplicationDocumentController::class, 'withdraw'])->name('withdraw');
+                Route::get('{document}/download', [ApplicationDocumentController::class, 'download'])->name('download');
+                Route::get('{document}/preview', [ApplicationDocumentController::class, 'preview'])->name('preview');
+            });
         });
+    });
+
+    /*
+     * Reviewer document review (PSP/CART only).
+     *
+     * Reviewers operate across institutions but can never change applicant
+     * state; every view/download/review re-checks the policy.
+     */
+    Route::prefix('reviewer/applications/{application}/documents')->name('reviewer.applications.documents.')->group(function () {
+        Route::get('/', [DocumentReviewController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('reviewer/documents')->name('reviewer.documents.')->group(function () {
+        Route::get('{document}', [DocumentReviewController::class, 'show'])->name('show');
+        Route::post('{document}/start-review', [DocumentReviewController::class, 'startReview'])->name('start-review');
+        Route::post('{document}/review', [DocumentReviewController::class, 'review'])->name('review');
+        Route::get('{document}/download', [DocumentReviewController::class, 'download'])->name('download');
+        Route::get('{document}/preview', [DocumentReviewController::class, 'preview'])->name('preview');
     });
 
     /*

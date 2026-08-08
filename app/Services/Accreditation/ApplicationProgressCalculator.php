@@ -5,6 +5,7 @@ namespace App\Services\Accreditation;
 use App\Enums\ApplicantResponseStatus;
 use App\Enums\WizardStep;
 use App\Models\AccreditationApplication;
+use App\Services\Documents\DocumentCompletenessService;
 
 /**
  * Computes wizard progress strictly from persisted application data.
@@ -14,6 +15,10 @@ use App\Models\AccreditationApplication;
  */
 class ApplicationProgressCalculator
 {
+    public function __construct(
+        private readonly DocumentCompletenessService $documents = new DocumentCompletenessService,
+    ) {}
+
     /**
      * Required keys per free-form wizard section.
      *
@@ -143,6 +148,15 @@ class ApplicationProgressCalculator
             $remaining[] = WizardStep::ReviewDeclaration->label().': declaration not yet accepted';
         }
 
+        $documentCompleteness = $this->documents->summary($application);
+
+        if ($documentCompleteness['total_required'] > 0 && ! $documentCompleteness['complete']) {
+            $remaining[] = 'Required supporting documents are incomplete ('
+                .$documentCompleteness['missing'].' missing, '
+                .$documentCompleteness['rejected'].' rejected, '
+                .$documentCompleteness['replacement_requested'].' replacement requested).';
+        }
+
         return [
             'steps' => $steps,
             'completion_percentage' => $this->percentage($application),
@@ -150,6 +164,7 @@ class ApplicationProgressCalculator
             'current_step' => $application->current_step->value,
             'status' => $application->status->value,
             'status_label' => $application->status->label(),
+            'document_completeness' => $documentCompleteness,
         ];
     }
 

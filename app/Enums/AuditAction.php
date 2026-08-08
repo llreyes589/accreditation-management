@@ -39,4 +39,16 @@ enum AuditAction: string
     case ChecklistRequirementReordered = 'checklist_requirement_reordered';
     case ChecklistRequirementDeactivated = 'checklist_requirement_deactivated';
     case ChecklistVersionPublishBlocked = 'checklist_version_publish_blocked';
+
+    // Supporting document upload and review.
+    case DocumentUploaded = 'document_uploaded';
+    case DocumentReplacementUploaded = 'document_replacement_uploaded';
+    case DocumentReviewStarted = 'document_review_started';
+    case DocumentAccepted = 'document_accepted';
+    case DocumentRejected = 'document_rejected';
+    case DocumentReplacementRequested = 'document_replacement_requested';
+    case DocumentReturnedToReview = 'document_returned_to_review';
+    case DocumentWithdrawn = 'document_withdrawn';
+    case DocumentVersionSuperseded = 'document_version_superseded';
+    case DocumentDownloaded = 'document_downloaded';
 }

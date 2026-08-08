@@ -121,6 +121,12 @@ class AccreditationApplication extends Model
         return $this->hasMany(ApplicationRequirement::class);
     }
 
+    /** @return HasMany<Document, $this> */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'application_id');
+    }
+
     /**
      * Constrain a query to a single institution.
      *

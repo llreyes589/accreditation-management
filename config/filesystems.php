@@ -60,6 +60,22 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Private storage for accreditation supporting documents. Never the
+         * "public" disk and never symlinked into public/: files are served
+         * only through controller-gated download/preview responses. Swapping
+         * the driver to an S3-compatible private bucket requires no code change
+         * beyond this disk definition.
+         */
+        'accreditation' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/accreditation'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*
