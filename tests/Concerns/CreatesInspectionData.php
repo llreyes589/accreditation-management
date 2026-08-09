@@ -139,9 +139,12 @@ trait CreatesInspectionData
 
     protected function startInspection(Inspection $inspection, ?User $actor = null): Inspection
     {
-        return app(InspectionService::class)->start(
-            $actor ?? $this->inspectorUser(),
-            $inspection,
-        );
+        $actor ??= $inspection->inspectors()
+            ->where('role', 'lead_inspector')
+            ->first()
+            ?->user
+            ?? $this->pspAdministrator();
+
+        return app(InspectionService::class)->start($actor, $inspection);
     }
 }

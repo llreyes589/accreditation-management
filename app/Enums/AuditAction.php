@@ -69,4 +69,25 @@ enum AuditAction: string
     case DocumentWithdrawn = 'document_withdrawn';
     case DocumentVersionSuperseded = 'document_version_superseded';
     case DocumentDownloaded = 'document_downloaded';
+
+    // Findings & corrective actions.
+    case FindingCreated = 'finding_created';
+    case FindingOpened = 'finding_opened';
+    case FindingAcknowledged = 'finding_acknowledged';
+    case FindingReturned = 'finding_returned';
+    case FindingSubmitted = 'finding_submitted';
+    case FindingAccepted = 'finding_accepted';
+    case FindingRejected = 'finding_rejected';
+    case FindingResolved = 'finding_resolved';
+    case FindingReopened = 'finding_reopened';
+    case FindingClosed = 'finding_closed';
+    case FindingWaived = 'finding_waived';
+    case FindingVoided = 'finding_voided';
+    case CorrectiveActionCreated = 'corrective_action_created';
+    case CorrectiveActionSubmitted = 'corrective_action_submitted';
+    case CorrectiveActionAccepted = 'corrective_action_accepted';
+    case CorrectiveActionRejected = 'corrective_action_rejected';
+    case CorrectiveActionReopened = 'corrective_action_reopened';
+    case CorrectiveActionClosed = 'corrective_action_closed';
+    case CorrectiveActionWithdrawn = 'corrective_action_withdrawn';
 }

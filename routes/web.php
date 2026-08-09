@@ -6,6 +6,7 @@ use App\Http\Controllers\Accreditation\ApplicationDocumentController;
 use App\Http\Controllers\Accreditation\ApplicationWizardController;
 use App\Http\Controllers\Accreditation\ChecklistVersionController;
 use App\Http\Controllers\Accreditation\DocumentReviewController;
+use App\Http\Controllers\Accreditation\FindingController;
 use App\Http\Controllers\Accreditation\InspectionController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -127,7 +128,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('criteria/{criterion}', [InspectionController::class, 'saveCriterion'])->name('criteria.save');
             Route::post('criteria/{criterion}/evidence', [InspectionController::class, 'linkEvidence'])->name('criteria.evidence.link');
             Route::post('evidence/{evidence}', [InspectionController::class, 'unlinkEvidence'])->name('evidence.unlink');
+
+            // Findings raised from this inspection (nested create form).
+            Route::get('findings', [FindingController::class, 'forInspection'])->name('inspections.findings.index');
+            Route::get('findings/create', [FindingController::class, 'create'])->name('findings.create');
+            Route::get('findings/{criterion}/create', [FindingController::class, 'create'])->name('findings.criterion.create');
         });
+    });
+
+    /*
+     * Findings & corrective actions (cross-institution reviewers; institution
+     * members respond for their own; auditors read-only).
+     */
+    Route::prefix('findings')->name('findings.')->group(function () {
+        Route::get('/', [FindingController::class, 'index'])->name('index');
+        Route::post('/', [FindingController::class, 'store'])->name('store');
+        Route::get('{finding}', [FindingController::class, 'show'])->name('show');
+
+        Route::post('{finding}/open', [FindingController::class, 'open'])->name('open');
+        Route::post('{finding}/acknowledge', [FindingController::class, 'acknowledge'])->name('acknowledge');
+        Route::post('{finding}/require-corrective-action', [FindingController::class, 'requireCorrectiveAction'])->name('require-corrective-action');
+        Route::post('{finding}/close', [FindingController::class, 'close'])->name('close');
+        Route::post('{finding}/reopen', [FindingController::class, 'reopen'])->name('reopen');
+        Route::post('{finding}/waive', [FindingController::class, 'waive'])->name('waive');
+        Route::post('{finding}/void', [FindingController::class, 'void'])->name('void');
+
+        Route::post('{finding}/actions', [FindingController::class, 'storeAction'])->name('actions.store');
+        Route::post('{finding}/actions/{action}/start', [FindingController::class, 'startAction'])->name('actions.start');
+        Route::post('{finding}/actions/{action}/submit', [FindingController::class, 'submitAction'])->name('actions.submit');
+        Route::post('{finding}/actions/{action}/accept', [FindingController::class, 'acceptAction'])->name('actions.accept');
+        Route::post('{finding}/actions/{action}/reject', [FindingController::class, 'rejectAction'])->name('actions.reject');
+        Route::post('{finding}/actions/{action}/withdraw', [FindingController::class, 'withdrawAction'])->name('actions.withdraw');
+        Route::post('{finding}/actions/{action}/close', [FindingController::class, 'closeAction'])->name('actions.close');
     });
 
     /*

@@ -153,6 +153,12 @@ class AccreditationApplication extends Model
         return $this->hasMany(Inspection::class, 'application_id');
     }
 
+    /** @return HasMany<Finding, $this> */
+    public function findings(): HasMany
+    {
+        return $this->hasMany(Finding::class, 'application_id');
+    }
+
     /** @return HasMany<CompletenessReview, $this> */
     public function completenessReviews(): HasMany
     {

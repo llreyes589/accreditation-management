@@ -160,13 +160,67 @@ changed, criterion note changed, evidence linked/unlinked, submitted, returned
 for revision, completed. Extension points (events) are stubbed for future
 notifications (email/SMS intentionally not implemented).
 
-## 4. Workflow: Inspection Findings & Corrective Actions (FUTURE module — not in this milestone)
+## 4. Workflow: Inspection Findings & Corrective Actions (implemented)
 
-> The sections below describe the **future** findings / corrective-action module.
-> They are documented for continuity but are **out of scope** for the inspection
-> scheduling & checklist milestone and are not implemented yet.
+> The findings / corrective-action module is implemented. Findings are raised only
+> from a completed inspection's recorded criterion result; the inspection snapshot
+> is copied immutably into the finding. No final accreditation decision or
+> certificate is created by this workflow.
 
 ### 4.1 Workflow: Findings & Corrective Action
+
+Actors: PSP Administrator / CART Reviewer (raise, review, close), Institution
+Administrator / Training Officer (acknowledge, respond), Auditor (read-only).
+
+Steps (reviewer raises a finding):
+1. Reviewer opens the completed inspection and selects a criterion that has a
+   recorded result.
+2. System confirms the inspection/criterion are authorized and copies the
+   historical criterion context into the finding `snapshot`.
+3. Reviewer classifies severity/category, adds title + description, sets due date.
+4. Reviewer may create one or more draft corrective actions, then Save as DRAFT or
+   Publish as OPEN (a `finding_reviews` "opened" record + audit `finding_opened`).
+5. Institution acknowledges (records user + timestamp + optional comment); status
+   → ACKNOWLEDGED.
+
+Corrective-action lifecycle (institution responds):
+- Institution submits a response (proposed action, responsible person/role, due
+  date, implementation notes, linked evidence via the private document system).
+  Previous version is preserved; finding → UNDER_REVIEW.
+- Reviewer returns for revision (comment required), accepts, or rejects (reason
+  required).
+- On accept: corrective action → ACCEPTED, finding → RESOLVED.
+- On reject: corrective action → REJECTED; institution may resubmit a new version.
+
+Closure & terminal states:
+- Reviewer closes a RESOLVED finding with a closing summary → CLOSED (audit
+  `finding_closed`). Closure never creates an accreditation decision or certificate.
+- Reopen (reason required) from RESOLVED/CLOSED → CORRECTIVE_ACTION_REQUIRED.
+- Waive / Void (authorization + reason) → WAIVED / VOIDED (terminal).
+
+Application status integration (no auto-approval):
+- Publishing the first finding sets the application to FINDINGS_ISSUED (or
+  CORRECTIVE_ACTION_REQUIRED when a corrective action is immediately required).
+- When every finding on an application is RESOLVED/CLOSED/WAIVED/VOIDED, the
+  application is marked FOR_FINAL_EVALUATION — a "ready for final evaluation"
+  indicator. It does **not** become APPROVED automatically; an authorized PSP/CART
+  user must still move it into the final-evaluation workflow.
+
+Overdue (derived, never auto-closed):
+- A finding or corrective action is overdue when its due date has passed and its
+  status is not CLOSED / ACCEPTED / WAIVED / VOIDED. Days-overdue, due date, and
+  responsible person are displayed; no email/SMS notification is sent yet
+  (extension points left for future reminders).
+
+**Configurable:** finding category/severity taxonomy (`config/findings.php`);
+which results force a corrective action; whether acknowledgement is required
+before a response; reminder timing.
+
+**Fixed:** findings derive only from recorded inspection results; the snapshot is
+immutable; evidence reuses the existing private document authorization; every
+transition writes a `FindingReview` + audit entry; institution users cannot edit
+the original finding, change severity, close their own finding, or see another
+institution's data; direct URL tampering is blocked server-side by `FindingPolicy`.
 
 ## 5. Workflow: Accreditation Decision
 

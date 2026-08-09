@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     ClipboardCheck,
+    FileWarning,
     FolderGit2,
     LayoutGrid,
     ListChecks,
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import checklistVersions from '@/routes/admin/checklists';
+import findings from '@/routes/findings';
 import inspections from '@/routes/inspections';
 import completenessReviews from '@/routes/reviewer/completeness';
 import type { NavItem } from '@/types';
@@ -58,6 +60,14 @@ const inspectionsNavItems: NavItem[] = [
     },
 ];
 
+const findingsNavItems: NavItem[] = [
+    {
+        title: 'Findings',
+        href: findings.index().url,
+        icon: FileWarning,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
@@ -78,6 +88,9 @@ export function AppSidebar() {
         ...mainNavItems,
         ...(user?.can_review_completeness ? reviewerNavItems : []),
         ...(user?.can_inspect ? inspectionsNavItems : []),
+        ...(user?.can_inspect || user?.can_access_accreditation
+            ? findingsNavItems
+            : []),
         ...(user?.can_administer_checklist ? adminNavItems : []),
     ];
 

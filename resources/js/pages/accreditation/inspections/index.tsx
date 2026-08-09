@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
-import inspections from '@/routes/inspections';
-import type {BreadcrumbItem} from '@/types';
+import inspectionsRoute from '@/routes/inspections';
+import type { BreadcrumbItem } from '@/types';
 
 interface InspectionRow {
     id: number;
@@ -36,7 +36,7 @@ interface Props {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Inspections', href: inspections.index().url },
+    { title: 'Inspections', href: inspectionsRoute.index().url },
 ];
 
 export default function InspectionIndex({ inspections, can_create }: Props) {
@@ -82,13 +82,15 @@ export default function InspectionIndex({ inspections, can_create }: Props) {
             <div className="flex flex-col gap-6 p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            Inspections
+                        </h1>
                         <p className="text-sm text-muted-foreground">
                             Scheduled and in-progress inspection checklists.
                         </p>
                     </div>
                     {can_create && (
-                        <Link href={inspections.eligible().url}>
+                        <Link href={inspectionsRoute.eligible().url}>
                             <Button>Schedule inspection</Button>
                         </Link>
                     )}
@@ -118,12 +120,24 @@ export default function InspectionIndex({ inspections, can_create }: Props) {
                                 <table className="w-full text-sm">
                                     <thead className="bg-muted/50 text-left text-muted-foreground">
                                         <tr>
-                                            <th className="px-4 py-2 font-medium">Reference</th>
-                                            <th className="px-4 py-2 font-medium">Institution</th>
-                                            <th className="px-4 py-2 font-medium">Program</th>
-                                            <th className="px-4 py-2 font-medium">Lead inspector</th>
-                                            <th className="px-4 py-2 font-medium">Scheduled</th>
-                                            <th className="px-4 py-2 font-medium">Status</th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Reference
+                                            </th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Institution
+                                            </th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Program
+                                            </th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Lead inspector
+                                            </th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Scheduled
+                                            </th>
+                                            <th className="px-4 py-2 font-medium">
+                                                Status
+                                            </th>
                                             <th className="px-4 py-2" />
                                         </tr>
                                     </thead>
@@ -134,7 +148,8 @@ export default function InspectionIndex({ inspections, can_create }: Props) {
                                                 className="border-t"
                                             >
                                                 <td className="px-4 py-2 font-medium">
-                                                    {row.application_reference ?? `#${row.id}`}
+                                                    {row.application_reference ??
+                                                        `#${row.id}`}
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     {row.institution ?? '—'}
@@ -146,19 +161,29 @@ export default function InspectionIndex({ inspections, can_create }: Props) {
                                                     {row.lead_inspector ?? '—'}
                                                 </td>
                                                 <td className="px-4 py-2 whitespace-nowrap">
-                                                    {row.scheduled_start_at ?? '—'}
+                                                    {row.scheduled_start_at ??
+                                                        '—'}
                                                 </td>
                                                 <td className="px-4 py-2">
-                                                    <Badge variant={statusVariant(row.status)}>
+                                                    <Badge
+                                                        variant={statusVariant(
+                                                            row.status,
+                                                        )}
+                                                    >
                                                         {row.status_label}
                                                     </Badge>
                                                 </td>
                                                 <td className="px-4 py-2 text-right">
                                                     {row.can_view && (
                                                         <Link
-                                                            href={inspections.show({
-                                                                inspection: row.id,
-                                                            }).url}
+                                                            href={
+                                                                inspectionsRoute.show(
+                                                                    {
+                                                                        inspection:
+                                                                            row.id,
+                                                                    },
+                                                                ).url
+                                                            }
                                                         >
                                                             <Button
                                                                 variant="outline"

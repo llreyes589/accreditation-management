@@ -69,16 +69,32 @@
     transitions in `InspectionService` + `InspectionPolicy`. No accreditation
     decision is created. See `docs/workflows.md` §3.
 
-### 5.2 Findings & Corrective Actions — FUTURE (not implemented)
+### 5.2 Findings & Corrective Actions — IMPLEMENTED
 
-20. **Findings + configurable severity.** [Config taxonomy — future]
-21. **Corrective actions + status tracking.** [Config vocab/loops — future]
-22. **Inspector verification flow.** [Fixed/Config — future]
+20. **Findings + configurable severity + classification.** [Implemented] —
+    `Finding` with `FindingStatus` (DRAFT/OPEN/ACKNOWLEDGED/CORRECTIVE_ACTION_REQUIRED/
+    UNDER_REVIEW/RESOLVED/CLOSED/REOPENED/WAIVED/VOIDED), `FindingReviewAction`
+    audit trail, immutable inspection-criterion snapshot, and severity/classification
+    drawn from `config/findings.php`. Findings are created only from a completed
+    inspection's recorded criterion result. Reviewer interface selects criteria to
+    raise as findings; institution users cannot edit/sever/close their own findings.
 
-> Items 20–22 are explicitly out of scope for the scheduling & checklist
-> milestone; the inspection only records evidence and results. Extension points
-> (events) are left for the future findings/corrective-action and notification
-> modules.
+21. **Corrective actions + status tracking.** [Implemented] — `CorrectiveAction`
+    with `CorrectiveActionStatus` (DRAFT/OPEN/IN_PROGRESS/SUBMITTED/UNDER_REVIEW/
+    ACCEPTED/REJECTED/WITHDRAWN/CLOSED/OVERDUE), immutable `CorrectiveActionVersion`
+    history, and `CorrectiveActionEvidence` links reusing the private document
+    system. Institution submits a response → finding UNDER_REVIEW; reviewer accepts
+    → finding RESOLVED; reviewer closes (with summary) → CLOSED.
+
+22. **Evidence via existing private document system.** [Implemented] —
+    `corrective_action_evidence` reuses `Document` + `DocumentVersion` storage,
+    versioning, authorization (`DocumentPolicy`), and secure download. No file
+    contents are duplicated or stored in the audit log.
+
+> Items 20–22 implemented in the Findings & Corrective-Action milestone. The
+> workflow integrates with application status (FINDINGS_ISSUED /
+> CORRECTIVE_ACTION_REQUIRED / FOR_FINAL_EVALUATION) without issuing an
+> accreditation decision or certificate. See `docs/workflows.md` §5.
 
 ## 6. Decision & Renewal
 

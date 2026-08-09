@@ -113,9 +113,9 @@ class InspectionController extends Controller
                     'scheduled_end_at' => $inspection->scheduled_end_at?->toDayDateTimeString(),
                     'timezone' => $inspection->timezone,
                     'location' => $inspection->location,
-                    'application_reference' => $inspection->application?->application_reference,
-                    'institution' => $inspection->application?->institution?->name,
-                    'program' => $inspection->application?->program?->name,
+                    'application_reference' => $inspection->application->application_reference,
+                    'institution' => $inspection->application->institution?->name,
+                    'program' => $inspection->application->program?->name,
                     'can_view' => $user->can('view', $inspection),
                     'lead_inspector' => $inspection->inspectors
                         ->where('role', 'lead_inspector')

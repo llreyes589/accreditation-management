@@ -40,8 +40,11 @@
 | InspectionCriterion | Historical snapshot of one checklist criterion for an inspection | id, inspection_id, source_requirement_id, section_code, section_name, requirement_code, title, description, severity, display_order, response_type, result, inspector_notes, institution_response, reviewed_by, reviewed_at |
 | InspectionEvidence | Evidence reference linked to an inspection criterion (reuses secure Document auth) | id, inspection_id, inspection_criterion_id, document_id, note, created_by |
 | InspectionReview | Append-only inspection review/transition history | id, inspection_id, reviewer_id, status_before, status_after, summary, comment, created_at |
-| Finding | Issue identified during inspection (FUTURE module) | id, inspection_id, severity (config), status |
-| CorrectiveAction | Remediation plan/tracking (FUTURE module) | id, finding_id, due_date, status, verified_by |
+| Finding | Issue identified from a completed inspection's recorded criterion result | id, application_id, inspection_id, inspection_criterion_id, finding_reference, category (config), title, description, severity_at_finding, status, due_date, assigned_to, created_by, acknowledged_by, acknowledged_at, acknowledged_comment, closed_by, closed_at, voided_by, voided_at, void_reason, waived_by, waived_at, reopened_by, reopened_at, reopened_reason, snapshot (json of criterion context), timestamps |
+| CorrectiveAction | Remediation plan tracking attached to a finding | id, finding_id, action_reference, title, description, responsible_user_id, responsible_role, due_date, status, submitted_at, submitted_by, accepted_at, accepted_by, rejected_at, rejected_by, rejection_reason, closed_at, closed_by, created_by, timestamps |
+| CorrectiveActionVersion | Immutable submitted version of a corrective action | id, corrective_action_id, version_number, proposed_action, implementation_notes, evidence (json snapshot of linked documents), submitted_by, submitted_at |
+| CorrectiveActionEvidence | Link between a corrective action and a private document (reuses Document system) | id, corrective_action_id, document_id, description, uploaded_by, timestamps |
+| FindingReview | Append-only review/transition history for a finding | id, finding_id, corrective_action_id (nullable), reviewer_id, action, status_before, status_after, comment, timestamps |
 | Decision | Accreditation decision record | id, application_id, outcome, approved_by, dates |
 | Resident | Trainee profile | id, institution_id, status, deidentified_clinical |
 | ResidentPortfolio | Resident's collected evidence/activities | id, resident_id, items (versioned) |
@@ -59,8 +62,9 @@
 - Inspection **1—N** InspectionCriterion (frozen snapshot of checklist requirements); each may reference source_requirement_id for traceability only.
 - Inspection **1—N** InspectionEvidence (reuses secure Document authorization); InspectionCriterion **1—N** InspectionEvidence.
 - Inspection **1—N** InspectionReview (append-only transition history); User **1—N** InspectionReview via reviewer_id.
-- Inspection **1—N** Finding *(FUTURE module)*.
-- Finding **1—N** CorrectiveAction *(FUTURE module)*.
+- Inspection **1—N** Finding.
+- Finding **1—N** CorrectiveAction; CorrectiveAction **1—N** CorrectiveActionVersion (immutable history); CorrectiveAction **1—N** CorrectiveActionEvidence (reuses secure Document authorization).
+- Finding **1—N** FindingReview (append-only transition history); User **1—N** FindingReview via reviewer_id; CorrectiveAction **1—N** FindingReview via corrective_action_id.
 - Application **1—1** Decision (or 1—N history of decisions; **open**).
 - Institution **1—N** Resident.
 - Resident **1—N** ResidentPortfolio entry.
