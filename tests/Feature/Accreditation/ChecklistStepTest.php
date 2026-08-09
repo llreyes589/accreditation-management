@@ -213,9 +213,9 @@ class ChecklistStepTest extends TestCase
         $institution = Institution::factory()->create();
         $program = $this->activeProgram($institution);
         $user = $this->userWithRole(RoleName::TrainingOfficer, $institution);
-        $this->synthChecklist();
+        $checklist = $this->synthChecklist();
 
-        $published = ChecklistVersion::where('version_code', 'SYN-WIZ')->firstOrFail();
+        $published = ChecklistVersion::findOrFail($checklist['mandatory']->checklist_version_id);
 
         $this->actingAs($user)->post(route('applications.store'), [
             'program_id' => $program->id,
@@ -223,12 +223,12 @@ class ChecklistStepTest extends TestCase
         ]);
 
         $application = AccreditationApplication::firstOrFail();
-        $this->assertSame('SYN-WIZ', $application->checklist_version);
+        $this->assertSame($published->version_code, $application->checklist_version);
         $this->assertSame($published->id, $application->checklist_version_id);
 
         // Changing the configured version later must not alter the stored one.
         config(['accreditation.checklist_version' => '2027.0']);
 
-        $this->assertSame('SYN-WIZ', $application->refresh()->checklist_version);
+        $this->assertSame($published->version_code, $application->refresh()->checklist_version);
     }
 }

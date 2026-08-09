@@ -37,7 +37,7 @@ trait CreatesWizardData
         // cannot resolve a version to freeze onto the application.
         if (! ChecklistVersion::query()->published()->forProgramType($program->program_type)->exists()) {
             ChecklistVersion::factory()->published()->create([
-                'version_code' => 'TEST-'.$program->program_type->value,
+                'version_code' => 'TEST-'.$program->program_type->value.'-'.fake()->unique()->numerify('####'),
                 'program_type' => $program->program_type,
             ]);
         }
@@ -53,7 +53,7 @@ trait CreatesWizardData
     protected function synthChecklist(): array
     {
         $version = ChecklistVersion::factory()->published()->create([
-            'version_code' => 'SYN-WIZ',
+            'version_code' => 'SYN-WIZ-'.fake()->unique()->numerify('####'),
             'program_type' => ProgramType::CombinedPathology,
         ]);
 

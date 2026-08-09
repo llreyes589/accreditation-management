@@ -82,38 +82,91 @@ stored on the application and shown to the applicant.
 return; cannot mark complete while blocking items remain; every transition
 audited; the completeness review creates no accreditation decision.
 
-## 3. Workflow: Inspection
+## 3. Workflow: Inspection Scheduling & Checklist (this milestone)
 
-Actors: PSP Administrator (assign), Inspector (conduct), Training Officer
-(coordinate on-site).
+> Scope boundary: this milestone covers **scheduling** an inspection and
+> recording a **checklist-based inspection report**. It deliberately does **not**
+> implement findings, corrective actions, or accreditation decisions. Those are a
+> separate, future module (see §4). The inspection only records evidence and
+> results for later review; it never translates a non-compliant criterion into an
+> automatic accreditation rejection.
 
-Steps:
-1. Inspection created against Application; Inspector assigned.
-2. Inspector records Findings during/after site visit.
-3. Each Finding assigned a configurable severity.
-4. For each Finding, Training Officer / Institution submits Corrective Actions.
-5. Inspector verifies Corrective Actions (status: OPEN → SUBMITTED → VERIFIED /
-   REJECTED).
-6. Inspection closed; outcomes feed Decision.
+Actors:
 
-**Configurable:** severity taxonomy; SLA/due dates for corrective actions;
-whether rejection loops are allowed.
+- **PSP Administrator / CART Reviewer** — create, schedule, assign inspectors,
+  reschedule, cancel, return for revision, and complete inspections.
+- **Assigned Inspector** (LEAD_INSPECTOR / INSPECTOR / OBSERVER) — view and
+  conduct their assigned inspection: start it, record criterion results and
+  notes, link evidence, save drafts, and submit.
+- **Institution users** — view only their own institution's inspection schedule
+  and authorized review outputs; never edit inspection criteria.
+- **Read-only Auditor** — view history; cannot modify.
 
-**Fixed:** findings and corrective actions linked immutably to inspection; all
-changes audited; no deletion of historical findings.
+Entities: `Inspection`, `InspectionInspector`, `InspectionCriterion`,
+`InspectionEvidence`, `InspectionReview`. The inspection lifecycle is driven by
+the `InspectionStatus` enum, enforced server-side in `InspectionService` and
+`InspectionPolicy`.
 
-## 4. Workflow: Corrective Action
+`InspectionStatus` transitions (server-enforced):
 
-Actors: Training Officer / Institution Admin (propose), Inspector (verify).
+- `DRAFT → SCHEDULED` (created + eligible + inspectors assigned)
+- `SCHEDULED → IN_PROGRESS` (assigned inspector / authorized admin starts)
+- `SCHEDULED → RESCHEDULED` (re-schedule, preserves history)
+- `SCHEDULED → CANCELLED` (reason required)
+- `RESCHEDULED → SCHEDULED`
+- `IN_PROGRESS → SUBMITTED_FOR_REVIEW` (every applicable criterion has a result)
+- `SUBMITTED_FOR_REVIEW → IN_PROGRESS` (returned by authorized reviewer, comment
+  required)
+- `SUBMITTED_FOR_REVIEW → COMPLETED` (reviewer summary required)
+- `IN_PROGRESS → CANCELLED` (authorized, reason required)
+- `COMPLETED` / `CANCELLED` are terminal.
 
-Steps:
-1. Created from a Finding; due date set.
-2. Status tracked: `OPEN → IN_PROGRESS → SUBMITTED → VERIFIED/REJECTED`.
-3. On REJECTED, returns to OPEN/IN_PROGRESS (configurable loop limit).
+Eligibility (an inspection may be created only when):
 
-**Configurable:** status vocabulary, loop limits, default due-date windows.
+- the application is authorized for the actor and belongs to an active program;
+- `status === COMPLETE_FOR_INSPECTION`;
+- no unresolved blocking completeness items;
+- no already-active inspection exists;
+- a valid (sectioned) checklist version is frozen on the application.
 
-**Fixed:** linkage to Finding is immutable; audit on each status change.
+Excluded (hard-blocked, never via hidden buttons): `DRAFT`, `SUBMITTED`,
+`RETURNED_FOR_REVISION`, or any application with blocking completeness items.
+
+**Snapshot rule (historical integrity).** On creation, inside a DB transaction,
+the applicable checklist requirements of the frozen `ChecklistVersion` are copied
+into `InspectionCriterion` rows — including `section_code`, `section_name`,
+`requirement_code`, `title`, `description`, `severity`, `response_type`, and
+ordering. `source_requirement_id` is retained for traceability only; the
+snapshot columns are the source of truth, so later edits/publishes/retires of the
+live requirement never alter the inspection record.
+
+**Checklist result rules (configurable where the checklist architecture allows).**
+
+- Every applicable criterion must have a result before submission.
+- `NOT_APPLICABLE` requires an explanation.
+- `NONCOMPLIANT`, `PARTIALLY_COMPLIANT`, `NOT_OBSERVED` require inspector notes.
+- Incomplete records are distinct from non-compliant criteria (a warning, never
+  silently hidden).
+
+Application status integration: on scheduling the application stays
+`COMPLETE_FOR_INSPECTION` (no accreditation decision is created). On completion
+the inspection result is preserved and an `FINDINGS_ISSUED` extension point is
+left for the future findings module; this milestone performs no findings or
+corrective-action creation.
+
+Audit logging covers: inspection created, checklist snapshot created, inspector
+assigned/removed, scheduled, rescheduled, cancelled, started, criterion result
+changed, criterion note changed, evidence linked/unlinked, submitted, returned
+for revision, completed. Extension points (events) are stubbed for future
+notifications (email/SMS intentionally not implemented).
+
+## 4. Workflow: Inspection Findings & Corrective Actions (FUTURE module — not in this milestone)
+
+> The sections below describe the **future** findings / corrective-action module.
+> They are documented for continuity but are **out of scope** for the inspection
+> scheduling & checklist milestone and are not implemented yet.
+
+### 4.1 Workflow: Findings & Corrective Action
 
 ## 5. Workflow: Accreditation Decision
 

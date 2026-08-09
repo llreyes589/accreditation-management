@@ -46,7 +46,19 @@ enum AuditAction: string
     case ChecklistRequirementDeactivated = 'checklist_requirement_deactivated';
     case ChecklistVersionPublishBlocked = 'checklist_version_publish_blocked';
 
-    // Supporting document upload and review.
+    // Inspection scheduling & checklist.
+    case InspectionCreated = 'inspection_created';
+    case InspectionStarted = 'inspection_started';
+    case InspectionSubmitted = 'inspection_submitted';
+    case InspectionReturned = 'inspection_returned';
+    case InspectionCompleted = 'inspection_completed';
+    case InspectionCancelled = 'inspection_cancelled';
+    case InspectionRescheduled = 'inspection_rescheduled';
+    case CriterionResultChanged = 'criterion_result_changed';
+    case EvidenceLinked = 'evidence_linked';
+    case EvidenceUnlinked = 'evidence_unlinked';
+    case InspectorAssigned = 'inspector_assigned';
+    case InspectorRemoved = 'inspector_removed';
     case DocumentUploaded = 'document_uploaded';
     case DocumentReplacementUploaded = 'document_replacement_uploaded';
     case DocumentReviewStarted = 'document_review_started';

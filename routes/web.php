@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\Accreditation\ApplicationController;
 use App\Http\Controllers\Accreditation\ApplicationCompletenessController;
+use App\Http\Controllers\Accreditation\ApplicationController;
 use App\Http\Controllers\Accreditation\ApplicationDocumentController;
 use App\Http\Controllers\Accreditation\ApplicationWizardController;
 use App\Http\Controllers\Accreditation\ChecklistVersionController;
 use App\Http\Controllers\Accreditation\DocumentReviewController;
+use App\Http\Controllers\Accreditation\InspectionController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -100,6 +101,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('{document}/review', [DocumentReviewController::class, 'review'])->name('review');
         Route::get('{document}/download', [DocumentReviewController::class, 'download'])->name('download');
         Route::get('{document}/preview', [DocumentReviewController::class, 'preview'])->name('preview');
+    });
+
+    /*
+     * Inspection scheduling & checklist (PSP/CART create/schedule/review;
+     * assigned inspectors conduct; institution users view their own).
+     */
+    Route::prefix('inspections')->name('inspections.')->group(function () {
+        Route::get('/', [InspectionController::class, 'index'])->name('index');
+        Route::get('eligible', [InspectionController::class, 'eligible'])->name('eligible');
+        Route::get('applications/{application}/create', [InspectionController::class, 'create'])->name('create');
+        Route::post('applications/{application}', [InspectionController::class, 'store'])->name('store');
+
+        Route::prefix('{inspection}')->group(function () {
+            Route::get('/', [InspectionController::class, 'show'])->name('show');
+            Route::post('start', [InspectionController::class, 'start'])->name('start');
+            Route::post('submit', [InspectionController::class, 'submit'])->name('submit');
+            Route::post('return', [InspectionController::class, 'returnForRevision'])->name('return');
+            Route::post('complete', [InspectionController::class, 'complete'])->name('complete');
+            Route::post('cancel', [InspectionController::class, 'cancel'])->name('cancel');
+            Route::post('reschedule', [InspectionController::class, 'reschedule'])->name('reschedule');
+            Route::post('inspectors', [InspectionController::class, 'addInspector'])->name('inspectors.add');
+            Route::post('inspectors/lead', [InspectionController::class, 'changeLead'])->name('inspectors.lead');
+            Route::post('inspectors/{assignment}', [InspectionController::class, 'removeInspector'])->name('inspectors.remove');
+            Route::patch('criteria/{criterion}', [InspectionController::class, 'saveCriterion'])->name('criteria.save');
+            Route::post('criteria/{criterion}/evidence', [InspectionController::class, 'linkEvidence'])->name('criteria.evidence.link');
+            Route::post('evidence/{evidence}', [InspectionController::class, 'unlinkEvidence'])->name('evidence.unlink');
+        });
     });
 
     /*

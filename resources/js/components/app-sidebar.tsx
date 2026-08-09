@@ -5,6 +5,7 @@ import {
     FolderGit2,
     LayoutGrid,
     ListChecks,
+    Search,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -21,6 +22,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import checklistVersions from '@/routes/admin/checklists';
+import inspections from '@/routes/inspections';
 import completenessReviews from '@/routes/reviewer/completeness';
 import type { NavItem } from '@/types';
 
@@ -48,6 +50,14 @@ const reviewerNavItems: NavItem[] = [
     },
 ];
 
+const inspectionsNavItems: NavItem[] = [
+    {
+        title: 'Inspections',
+        href: inspections.index().url,
+        icon: Search,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
@@ -67,6 +77,7 @@ export function AppSidebar() {
     const items = [
         ...mainNavItems,
         ...(user?.can_review_completeness ? reviewerNavItems : []),
+        ...(user?.can_inspect ? inspectionsNavItems : []),
         ...(user?.can_administer_checklist ? adminNavItems : []),
     ];
 

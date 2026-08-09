@@ -35,9 +35,13 @@
 | ChecklistResponse | Institution's answer/evidence per item | id, application_id, item_id, status, notes |
 | Document | Versioned supporting file | id, owner_id, version, hash, deidentified_flag |
 | CompletenessReview | Append-only completeness-review record (the completeness report) | id, application_id, reviewer_id, decision, reviewer_comment, deficiencies (JSON), requested_changes (JSON), reviewed_at |
-| Inspection | Scheduled/conducted site inspection | id, application_id, inspector_id, status, dates |
-| Finding | Issue identified during inspection | id, inspection_id, severity (config), status |
-| CorrectiveAction | Remediation plan/tracking | id, finding_id, due_date, status, verified_by |
+| Inspection | Scheduled/conducted inspection against a complete-for-inspection application | id, application_id, checklist_version_id, status, inspection_type, scheduled_start_at, scheduled_end_at, timezone, location, meeting_url, instructions, created_by, scheduled_by, started_at, submitted_at, completed_at, cancelled_at, cancellation_reason |
+| InspectionInspector | Inspector assignment (lead/inspector/observer) on an inspection | id, inspection_id, user_id, role, status, invited_at, accepted_at, declined_at, decline_reason |
+| InspectionCriterion | Historical snapshot of one checklist criterion for an inspection | id, inspection_id, source_requirement_id, section_code, section_name, requirement_code, title, description, severity, display_order, response_type, result, inspector_notes, institution_response, reviewed_by, reviewed_at |
+| InspectionEvidence | Evidence reference linked to an inspection criterion (reuses secure Document auth) | id, inspection_id, inspection_criterion_id, document_id, note, created_by |
+| InspectionReview | Append-only inspection review/transition history | id, inspection_id, reviewer_id, status_before, status_after, summary, comment, created_at |
+| Finding | Issue identified during inspection (FUTURE module) | id, inspection_id, severity (config), status |
+| CorrectiveAction | Remediation plan/tracking (FUTURE module) | id, finding_id, due_date, status, verified_by |
 | Decision | Accreditation decision record | id, application_id, outcome, approved_by, dates |
 | Resident | Trainee profile | id, institution_id, status, deidentified_clinical |
 | ResidentPortfolio | Resident's collected evidence/activities | id, resident_id, items (versioned) |
@@ -51,8 +55,12 @@
 - Application **1—N** Document (as supporting docs).
 - Application **1—N** CompletenessReview (append-only completeness report); reviewer/user via reviewer_id.
 - Application **1—N** Inspection.
-- Inspection **1—N** Finding.
-- Finding **1—N** CorrectiveAction.
+- Inspection **1—N** InspectionInspector (lead/inspector/observer assignments); User **1—N** InspectionInspector.
+- Inspection **1—N** InspectionCriterion (frozen snapshot of checklist requirements); each may reference source_requirement_id for traceability only.
+- Inspection **1—N** InspectionEvidence (reuses secure Document authorization); InspectionCriterion **1—N** InspectionEvidence.
+- Inspection **1—N** InspectionReview (append-only transition history); User **1—N** InspectionReview via reviewer_id.
+- Inspection **1—N** Finding *(FUTURE module)*.
+- Finding **1—N** CorrectiveAction *(FUTURE module)*.
 - Application **1—1** Decision (or 1—N history of decisions; **open**).
 - Institution **1—N** Resident.
 - Resident **1—N** ResidentPortfolio entry.

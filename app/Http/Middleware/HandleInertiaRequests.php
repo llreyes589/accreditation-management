@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                     ? array_merge($request->user()->toArray(), [
                         'can_administer_checklist' => $request->user()->canAdministerChecklist(),
                         'can_review_completeness' => $request->user()->canReviewCompleteness(),
+                        'can_inspect' => $request->user()->canInspect(),
                     ])
                     : null,
             ],

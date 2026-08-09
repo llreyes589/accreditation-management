@@ -147,6 +147,12 @@ class AccreditationApplication extends Model
         return $this->belongsTo(User::class, 'completed_for_inspection_by');
     }
 
+    /** @return HasMany<Inspection, $this> */
+    public function inspections(): HasMany
+    {
+        return $this->hasMany(Inspection::class, 'application_id');
+    }
+
     /** @return HasMany<CompletenessReview, $this> */
     public function completenessReviews(): HasMany
     {

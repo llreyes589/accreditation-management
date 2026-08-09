@@ -59,10 +59,26 @@
 
 ## 5. Inspection, Findings, Corrective Actions
 
-19. **Inspection entity + scheduling.** [Fixed]
-20. **Findings + configurable severity.** [Config taxonomy]
-21. **Corrective actions + status tracking.** [Config vocab/loops]
-22. **Inspector verification flow.** [Fixed/Config]
+### 5.1 Inspection Scheduling & Checklist — IMPLEMENTED
+
+19. **Inspection entity + scheduling.** [Implemented] — `Inspection` with
+    `InspectionStatus` (DRAFT/SCHEDULED/IN_PROGRESS/SUBMITTED_FOR_REVIEW/
+    COMPLETED/CANCELLED/RESCHEDULED), eligibility gating, inspector assignment,
+    checklist snapshot (`InspectionCriterion`), evidence linking
+    (`InspectionEvidence`), and review history (`InspectionReview`). Server-enforced
+    transitions in `InspectionService` + `InspectionPolicy`. No accreditation
+    decision is created. See `docs/workflows.md` §3.
+
+### 5.2 Findings & Corrective Actions — FUTURE (not implemented)
+
+20. **Findings + configurable severity.** [Config taxonomy — future]
+21. **Corrective actions + status tracking.** [Config vocab/loops — future]
+22. **Inspector verification flow.** [Fixed/Config — future]
+
+> Items 20–22 are explicitly out of scope for the scheduling & checklist
+> milestone; the inspection only records evidence and results. Extension points
+> (events) are left for the future findings/corrective-action and notification
+> modules.
 
 ## 6. Decision & Renewal
 

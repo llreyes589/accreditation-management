@@ -160,6 +160,59 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Whether the user may participate in inspection management at all (any
+     * inspection-facing role). Used to surface navigation and lists.
+     */
+    public function canInspect(): bool
+    {
+        return $this->hasAnyRole([
+            RoleName::PspAdministrator,
+            RoleName::CartReviewer,
+            RoleName::Inspector,
+            RoleName::ReadOnlyAuditor,
+        ]);
+    }
+
+    /**
+     * Whether the user may create, schedule, assign, return or complete
+     * inspections (PSP/CART only — not inspectors or auditors).
+     */
+    public function canScheduleInspection(): bool
+    {
+        return $this->hasAnyRole([
+            RoleName::PspAdministrator,
+            RoleName::CartReviewer,
+        ]);
+    }
+
+    /**
+     * Whether the user may perform the final review (return or complete) of a
+     * submitted inspection. Mirrors canScheduleInspection but is kept separate
+     * so the authority can diverge later.
+     */
+    public function canReviewInspection(): bool
+    {
+        return $this->hasAnyRole([
+            RoleName::PspAdministrator,
+            RoleName::CartReviewer,
+        ]);
+    }
+
+    /**
+     * Whether the user holds the inspector role (may be assigned to and conduct
+     * an inspection).
+     */
+    public function isInspector(): bool
+    {
+        return $this->hasRole(RoleName::Inspector);
+    }
+
+    public function isAuditor(): bool
+    {
+        return $this->hasRole(RoleName::ReadOnlyAuditor);
+    }
+
+    /**
      * Whether the user's remit spans institutions (PSP, CART, inspector, auditor).
      */
     public function hasCrossInstitutionRole(): bool
