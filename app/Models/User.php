@@ -144,6 +144,22 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Whether the user may perform the PSP/CART completeness review (begin
+     * review, return for revision, mark complete for inspection).
+     *
+     * This is an administrative and documentary check only — it never creates
+     * an accreditation decision. Per the specification, PSP administrators and
+     * CART reviewers hold this remit.
+     */
+    public function canReviewCompleteness(): bool
+    {
+        return $this->hasAnyRole([
+            RoleName::PspAdministrator,
+            RoleName::CartReviewer,
+        ]);
+    }
+
+    /**
      * Whether the user's remit spans institutions (PSP, CART, inspector, auditor).
      */
     public function hasCrossInstitutionRole(): bool

@@ -1,10 +1,16 @@
 import { Head, Link } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import checklistVersions from '@/routes/admin/checklists';
-import type {BreadcrumbItem} from '@/types';
+import type { BreadcrumbItem } from '@/types';
 
 interface Requirement {
     id: number;
@@ -93,10 +99,16 @@ export default function ChecklistShow({
                 <div className="flex items-start justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-semibold">{version_code}</h1>
+                            <h1 className="text-2xl font-semibold">
+                                {version_code}
+                            </h1>
                             <Badge
                                 variant={
-                                    status === 'published' ? 'default' : status === 'retired' ? 'secondary' : 'outline'
+                                    status === 'published'
+                                        ? 'default'
+                                        : status === 'retired'
+                                          ? 'secondary'
+                                          : 'outline'
                                 }
                             >
                                 {status_label}
@@ -107,33 +119,65 @@ export default function ChecklistShow({
                     <div className="flex flex-wrap gap-2">
                         {can_preview && (
                             <Button variant="outline" asChild>
-                                <Link href={checklistVersions.preview({ checklist_version: id }).url}>Preview</Link>
+                                <Link
+                                    href={
+                                        checklistVersions.preview({
+                                            checklist_version: id,
+                                        }).url
+                                    }
+                                >
+                                    Preview
+                                </Link>
                             </Button>
                         )}
                         {can_edit && (
                             <Button variant="outline" asChild>
-                                <Link href={checklistVersions.edit({ checklist_version: id }).url}>Edit</Link>
+                                <Link
+                                    href={
+                                        checklistVersions.edit({
+                                            checklist_version: id,
+                                        }).url
+                                    }
+                                >
+                                    Edit
+                                </Link>
                             </Button>
                         )}
                         {can_publish && (
                             <Button asChild>
-                                <Link href={`/admin/checklists/${id}/publish`}>Publish</Link>
+                                <Link href={`/admin/checklists/${id}/publish`}>
+                                    Publish
+                                </Link>
                             </Button>
                         )}
                         {can_retire && (
                             <Button variant="destructive" asChild>
-                                <Link href={`/admin/checklists/${id}/retire`}>Retire</Link>
+                                <Link href={`/admin/checklists/${id}/retire`}>
+                                    Retire
+                                </Link>
                             </Button>
                         )}
                         {can_clone && (
                             <Button variant="outline" asChild>
-                                <Link href={checklistVersions.clone({ checklist_version: id }).url}>Clone</Link>
+                                <Link
+                                    href={
+                                        checklistVersions.clone({
+                                            checklist_version: id,
+                                        }).url
+                                    }
+                                >
+                                    Clone
+                                </Link>
                             </Button>
                         )}
                         {can_delete && (
                             <Button variant="destructive" asChild>
                                 <Link
-                                    href={checklistVersions.destroy({ checklist_version: id }).url}
+                                    href={
+                                        checklistVersions.destroy({
+                                            checklist_version: id,
+                                        }).url
+                                    }
                                     method="delete"
                                     as="button"
                                 >
@@ -148,11 +192,22 @@ export default function ChecklistShow({
                     <CardContent className="grid grid-cols-2 gap-4 p-4 text-sm md:grid-cols-3">
                         <Meta label="Program type" value={program_type_label} />
                         <Meta label="Created by" value={created_by ?? '—'} />
-                        <Meta label="Effective" value={effectiveRange(effective_from, effective_until)} />
+                        <Meta
+                            label="Effective"
+                            value={effectiveRange(
+                                effective_from,
+                                effective_until,
+                            )}
+                        />
                         <Meta label="Published" value={published_at ?? '—'} />
-                        <Meta label="Published by" value={published_by ?? '—'} />
+                        <Meta
+                            label="Published by"
+                            value={published_by ?? '—'}
+                        />
                         <Meta label="Retired" value={retired_at ?? '—'} />
-                        {description && <Meta label="Description" value={description} />}
+                        {description && (
+                            <Meta label="Description" value={description} />
+                        )}
                     </CardContent>
                 </Card>
 
@@ -160,7 +215,8 @@ export default function ChecklistShow({
                     <CardHeader>
                         <CardTitle>Contents</CardTitle>
                         <CardDescription>
-                            Read-only view of this version. {sections.length} section(s).
+                            Read-only view of this version. {sections.length}{' '}
+                            section(s).
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -168,11 +224,19 @@ export default function ChecklistShow({
                             <div key={s.id}>
                                 <div className="mb-2 flex items-center gap-2">
                                     <h3 className="font-medium">{s.title}</h3>
-                                    <span className="text-xs text-muted-foreground">{s.code}</span>
-                                    {!s.is_active && <Badge variant="secondary">Inactive</Badge>}
+                                    <span className="text-xs text-muted-foreground">
+                                        {s.code}
+                                    </span>
+                                    {!s.is_active && (
+                                        <Badge variant="secondary">
+                                            Inactive
+                                        </Badge>
+                                    )}
                                 </div>
                                 {s.description && (
-                                    <p className="mb-2 text-sm text-muted-foreground">{s.description}</p>
+                                    <p className="mb-2 text-sm text-muted-foreground">
+                                        {s.description}
+                                    </p>
                                 )}
                                 <table className="w-full text-sm">
                                     <thead className="border-b">
@@ -188,12 +252,28 @@ export default function ChecklistShow({
                                     <tbody>
                                         {s.requirements.map((r) => (
                                             <tr key={r.id} className="border-b">
-                                                <td className="p-2 font-mono text-xs">{r.code}</td>
-                                                <td className="p-2">{r.requirement}</td>
-                                                <td className="p-2">{r.severity_label}</td>
-                                                <td className="p-2">{r.is_mandatory ? 'Yes' : 'No'}</td>
-                                                <td className="p-2 uppercase">{r.response_type}</td>
-                                                <td className="p-2">{r.requires_document ? 'Yes' : 'No'}</td>
+                                                <td className="p-2 font-mono text-xs">
+                                                    {r.code}
+                                                </td>
+                                                <td className="p-2">
+                                                    {r.requirement}
+                                                </td>
+                                                <td className="p-2">
+                                                    {r.severity_label}
+                                                </td>
+                                                <td className="p-2">
+                                                    {r.is_mandatory
+                                                        ? 'Yes'
+                                                        : 'No'}
+                                                </td>
+                                                <td className="p-2 uppercase">
+                                                    {r.response_type}
+                                                </td>
+                                                <td className="p-2">
+                                                    {r.requires_document
+                                                        ? 'Yes'
+                                                        : 'No'}
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -218,8 +298,8 @@ function Meta({ label, value }: { label: string; value: string }) {
 
 function effectiveRange(from: string | null, until: string | null): string {
     if (!from && !until) {
-return '—';
-}
+        return '—';
+    }
 
     return `${from ?? '—'} → ${until ?? 'open'}`;
 }

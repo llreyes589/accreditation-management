@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Accreditation;
 
+use App\Enums\ApplicationStatus;
 use App\Enums\ApplicationType;
 use App\Exceptions\ApplicationSubmissionException;
+use App\Exceptions\CompletenessReviewException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Accreditation\StoreApplicationRequest;
 use App\Models\AccreditationApplication;
 use App\Models\Program;
 use App\Services\Accreditation\ApplicationWizardService;
+use App\Services\Accreditation\CompletenessReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -21,6 +24,7 @@ class ApplicationController extends Controller
 {
     public function __construct(
         private readonly ApplicationWizardService $wizard,
+        private readonly CompletenessReviewService $reviews,
     ) {}
 
     /**
@@ -59,6 +63,10 @@ class ApplicationController extends Controller
                 'submitted_at' => $a->submitted_at?->toDayDateTimeString(),
                 'can_edit' => $user->can('update', $a),
                 'can_withdraw' => $user->can('withdraw', $a),
+                'can_resubmit' => $user->can('resubmitCompletenessReview', $a),
+                'returned_comment' => $a->status === ApplicationStatus::ReturnedForRevision
+                    ? $a->returned_comment
+                    : null,
             ])
             ->values();
 
@@ -140,5 +148,21 @@ class ApplicationController extends Controller
         return redirect()
             ->route('applications.index')
             ->with('success', 'Draft '.$application->application_reference.' was withdrawn.');
+    }
+
+    /**
+     * Applicant resubmits a returned application.
+     */
+    public function resubmit(Request $request, AccreditationApplication $application): RedirectResponse
+    {
+        $this->authorize('resubmitCompletenessReview', $application);
+
+        try {
+            $this->reviews->resubmit($request->user(), $application);
+        } catch (CompletenessReviewException $e) {
+            return back()->withErrors([$e->field() => $e->getMessage()]);
+        }
+
+        return back()->with('success', 'Application '.$application->application_reference.' was resubmitted.');
     }
 }

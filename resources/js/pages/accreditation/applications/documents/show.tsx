@@ -1,7 +1,13 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -43,8 +49,15 @@ interface Props {
     can_withdraw: boolean;
 }
 
-export default function DocumentShow({ application, document: doc, can_replace, can_withdraw }: Props) {
-    const { data, setData, post, processing, errors, reset } = useForm<{ document: File | null }>({
+export default function DocumentShow({
+    application,
+    document: doc,
+    can_replace,
+    can_withdraw,
+}: Props) {
+    const { data, setData, post, processing, errors, reset } = useForm<{
+        document: File | null;
+    }>({
         document: null,
     });
 
@@ -57,9 +70,13 @@ export default function DocumentShow({ application, document: doc, can_replace, 
     }
 
     function withdraw() {
-        if (!confirm('Withdraw this document? This is a logical removal and can be audited.')) {
-return;
-}
+        if (
+            !confirm(
+                'Withdraw this document? This is a logical removal and can be audited.',
+            )
+        ) {
+            return;
+        }
 
         post(`/applications/${application.id}/documents/${doc.id}/withdraw`);
     }
@@ -106,22 +123,37 @@ return;
                         </a>
                     </div>
                     {can_replace && (
-                        <form onSubmit={replace} className="space-y-2 border-t pt-3">
+                        <form
+                            onSubmit={replace}
+                            className="space-y-2 border-t pt-3"
+                        >
                             <Label htmlFor="document">Upload replacement</Label>
                             <Input
                                 id="document"
                                 type="file"
                                 accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png"
-                                onChange={(e) => setData('document', e.target.files?.[0] ?? null)}
+                                onChange={(e) =>
+                                    setData(
+                                        'document',
+                                        e.target.files?.[0] ?? null,
+                                    )
+                                }
                             />
                             <InputError message={errors.document} />
-                            <Button type="submit" disabled={processing || !data.document}>
+                            <Button
+                                type="submit"
+                                disabled={processing || !data.document}
+                            >
                                 Upload replacement
                             </Button>
                         </form>
                     )}
                     {can_withdraw && (
-                        <Button variant="outline" onClick={withdraw} className="mt-2">
+                        <Button
+                            variant="outline"
+                            onClick={withdraw}
+                            className="mt-2"
+                        >
                             Withdraw document
                         </Button>
                     )}
@@ -131,13 +163,18 @@ return;
             <Card className="mb-4">
                 <CardHeader>
                     <CardTitle>Version history</CardTitle>
-                    <CardDescription>Previous versions are preserved for audit.</CardDescription>
+                    <CardDescription>
+                        Previous versions are preserved for audit.
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ul className="divide-y">
                         {doc.versions.map((v) => (
                             <li key={v.version_number} className="py-2 text-sm">
-                                <span className="font-medium">v{v.version_number}</span> · {v.original_filename} ·{' '}
+                                <span className="font-medium">
+                                    v{v.version_number}
+                                </span>{' '}
+                                · {v.original_filename} ·{' '}
                                 {(v.file_size_bytes / 1024).toFixed(1)} KB
                                 {v.uploaded_at ? ` · ${v.uploaded_at}` : ''}
                                 {v.is_current ? ' · current' : ''}
@@ -154,12 +191,16 @@ return;
                 </CardHeader>
                 <CardContent>
                     {doc.reviews.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No reviews yet.</p>
+                        <p className="text-sm text-muted-foreground">
+                            No reviews yet.
+                        </p>
                     ) : (
                         <ul className="divide-y">
                             {doc.reviews.map((r, i) => (
                                 <li key={i} className="py-2 text-sm">
-                                    <span className="font-medium">{r.decision_label}</span>
+                                    <span className="font-medium">
+                                        {r.decision_label}
+                                    </span>
                                     {r.reviewer ? ` by ${r.reviewer}` : ''}
                                     {r.reviewed_at ? ` · ${r.reviewed_at}` : ''}
                                     {r.comment ? ` — ${r.comment}` : ''}

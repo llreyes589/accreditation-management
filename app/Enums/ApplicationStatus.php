@@ -16,6 +16,7 @@ enum ApplicationStatus: string
 {
     case Draft = 'draft';
     case Submitted = 'submitted';
+    case UnderCompletenessReview = 'under_completeness_review';
     case ReturnedForRevision = 'returned_for_revision';
     case CompleteForInspection = 'complete_for_inspection';
     case InspectionScheduled = 'inspection_scheduled';
@@ -35,6 +36,7 @@ enum ApplicationStatus: string
         return match ($this) {
             self::Draft => 'Draft',
             self::Submitted => 'Submitted',
+            self::UnderCompletenessReview => 'Under Completeness Review',
             self::ReturnedForRevision => 'Returned for Revision',
             self::CompleteForInspection => 'Complete for Inspection',
             self::InspectionScheduled => 'Inspection Scheduled',
@@ -54,12 +56,27 @@ enum ApplicationStatus: string
     /**
      * Statuses the applicant may still edit through the wizard.
      *
-     * ReturnedForRevision is included so that a later milestone can reopen an
-     * application for the institution without changing this contract.
+     * ReturnedForRevision is included so that a returned application is reopened
+     * for the institution to make revisions. Submitted and UnderCompletenessReview
+     * are locked for normal applicant editing.
      */
     public function isEditableByInstitution(): bool
     {
         return in_array($this, [self::Draft, self::ReturnedForRevision], true);
+    }
+
+    public function isUnderCompletenessReview(): bool
+    {
+        return $this === self::UnderCompletenessReview;
+    }
+
+    /**
+     * The application is in a reviewer-controlled completeness state and the
+     * applicant may not submit or edit it.
+     */
+    public function isInCompletenessReview(): bool
+    {
+        return in_array($this, [self::UnderCompletenessReview], true);
     }
 
     /**

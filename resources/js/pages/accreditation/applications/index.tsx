@@ -25,6 +25,8 @@ interface ApplicationRow {
     submitted_at: string | null;
     can_edit: boolean;
     can_withdraw: boolean;
+    can_resubmit: boolean;
+    returned_comment: string | null;
 }
 
 function statusVariant(status: string): 'default' | 'secondary' | 'outline' {
@@ -57,6 +59,22 @@ export default function ApplicationsIndex({
 
         router.post(
             `/applications/${row.id}/withdraw`,
+            {},
+            { preserveScroll: true },
+        );
+    };
+
+    const resubmit = (row: ApplicationRow) => {
+        if (
+            !window.confirm(
+                `Resubmit ${row.reference} for completeness review?`,
+            )
+        ) {
+            return;
+        }
+
+        router.post(
+            `/applications/${row.id}/resubmit`,
             {},
             { preserveScroll: true },
         );
@@ -239,6 +257,19 @@ export default function ApplicationsIndex({
                                                 </td>
                                                 <td className="p-3 text-right">
                                                     <div className="flex justify-end gap-2">
+                                                        {row.returned_comment && (
+                                                            <span
+                                                                className="hidden max-w-[14rem] truncate text-xs text-destructive sm:inline"
+                                                                title={
+                                                                    row.returned_comment
+                                                                }
+                                                            >
+                                                                Returned:{' '}
+                                                                {
+                                                                    row.returned_comment
+                                                                }
+                                                            </span>
+                                                        )}
                                                         <Button
                                                             asChild
                                                             size="sm"
@@ -252,6 +283,18 @@ export default function ApplicationsIndex({
                                                                     : 'View'}
                                                             </Link>
                                                         </Button>
+                                                        {row.can_resubmit && (
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    resubmit(
+                                                                        row,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Resubmit
+                                                            </Button>
+                                                        )}
                                                         {row.can_withdraw && (
                                                             <Button
                                                                 size="sm"

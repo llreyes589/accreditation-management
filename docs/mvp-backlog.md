@@ -41,6 +41,22 @@
 17. **Document upload + versioning.** [Fixed mechanic]
 18. **Review/triage transitions (CART).** [Config who/return-to-draft]
 
+## 4.5 Completeness Review (administrative & documentary check)
+
+> Implemented. Extends the existing `ApplicationStatus` workflow with
+> `UNDER_COMPLETENESS_REVIEW`, `RETURNED_FOR_REVISION`, and
+> `COMPLETE_FOR_INSPECTION`. A PSP/CART reviewer performs an administrative and
+> documentary check only — it does not determine compliance, eligibility, or an
+> accreditation decision, and does not schedule inspection.
+
+19. **Completeness review status transitions (server-enforced).** [Fixed]
+20. **Automated completeness calculation (checklist + documents).** [Fixed]
+21. **Reviewer dashboard + application completeness detail page.** [Fixed]
+22. **Missing-item / deficiency list + reviewer comments.** [Fixed]
+23. **Return-for-revision workflow (comment required) + resubmission.** [Fixed]
+24. **Mark-complete workflow (blocked while blocking items remain).** [Fixed]
+25. **Completeness audit logging + completeness report history.** [Fixed]
+
 ## 5. Inspection, Findings, Corrective Actions
 
 19. **Inspection entity + scheduling.** [Fixed]

@@ -83,6 +83,61 @@ class AccreditationApplicationPolicy
     }
 
     /**
+     * Reviewer completeness-review dashboard (PSP/CART only).
+     */
+    public function viewCompletenessDashboard(User $user): bool
+    {
+        return $user->canReviewCompleteness();
+    }
+
+    /**
+     * Begin the completeness review (Submitted -> Under Completeness Review).
+     */
+    public function beginCompletenessReview(User $user, AccreditationApplication $application): bool
+    {
+        return $user->canReviewCompleteness()
+            && $application->status === ApplicationStatus::Submitted;
+    }
+
+    /**
+     * Return the application for revision (Under Review -> Returned).
+     */
+    public function returnForRevision(User $user, AccreditationApplication $application): bool
+    {
+        return $user->canReviewCompleteness()
+            && $application->status === ApplicationStatus::UnderCompletenessReview;
+    }
+
+    /**
+     * Mark the application complete for inspection (Under Review -> Complete).
+     */
+    public function completeCompletenessReview(User $user, AccreditationApplication $application): bool
+    {
+        return $user->canReviewCompleteness()
+            && $application->status === ApplicationStatus::UnderCompletenessReview;
+    }
+
+    /**
+     * Applicant resubmits a returned application.
+     *
+     * Only institution staff (not cross-institution reviewers) within the owning
+     * institution may resubmit, and only from the ReturnedForRevision state.
+     */
+    public function resubmitCompletenessReview(User $user, AccreditationApplication $application): bool
+    {
+        if (! $user->belongsToInstitution($application->institution_id)) {
+            return false;
+        }
+
+        if ($user->hasCrossInstitutionRole()) {
+            return false;
+        }
+
+        return $application->status === ApplicationStatus::ReturnedForRevision
+            && $this->isApplicant($user, $application->institution_id);
+    }
+
+    /**
      * Accreditation history is never deleted.
      */
     public function delete(User $user, AccreditationApplication $application): bool

@@ -30,17 +30,18 @@
 | Role | Access role | id, name, permissions (configurable) |
 | Institution | Training institution | id, name, identifiers, status |
 | Program | Accreditation unit within institution | id, institution_id, program_type, status |
-| Application | Accreditation application submission | id, program_id, status, submitted_by, cycle |
+| Application | Accreditation application submission | id, program_id, status, submitted_by, cycle, under_review_by/at, returned_by/at/comment, completed_for_inspection_by/at, completeness_reviewer_comment |
 | ChecklistItem | One configurable compliance requirement | id, category, description, weight, threshold |
 | ChecklistResponse | Institution's answer/evidence per item | id, application_id, item_id, status, notes |
 | Document | Versioned supporting file | id, owner_id, version, hash, deidentified_flag |
+| CompletenessReview | Append-only completeness-review record (the completeness report) | id, application_id, reviewer_id, decision, reviewer_comment, deficiencies (JSON), requested_changes (JSON), reviewed_at |
 | Inspection | Scheduled/conducted site inspection | id, application_id, inspector_id, status, dates |
 | Finding | Issue identified during inspection | id, inspection_id, severity (config), status |
 | CorrectiveAction | Remediation plan/tracking | id, finding_id, due_date, status, verified_by |
 | Decision | Accreditation decision record | id, application_id, outcome, approved_by, dates |
 | Resident | Trainee profile | id, institution_id, status, deidentified_clinical |
 | ResidentPortfolio | Resident's collected evidence/activities | id, resident_id, items (versioned) |
-| AuditLog | Immutable record of important actions | id, actor_id, action, entity_ref, timestamp, hash |
+| AuditLog | Immutable record of important actions | id, actor_id, action, entity_ref, timestamp, hash (also: COMPLETENESS_REVIEW_STARTED / RETURNED / COMPLETE actions) |
 
 ## 3. Relationships (textual)
 
@@ -48,6 +49,7 @@
 - Program **1—N** Application (across cycles) *(cardinality open)*.
 - Application **1—N** ChecklistResponse; ChecklistItem **1—N** ChecklistResponse.
 - Application **1—N** Document (as supporting docs).
+- Application **1—N** CompletenessReview (append-only completeness report); reviewer/user via reviewer_id.
 - Application **1—N** Inspection.
 - Inspection **1—N** Finding.
 - Finding **1—N** CorrectiveAction.

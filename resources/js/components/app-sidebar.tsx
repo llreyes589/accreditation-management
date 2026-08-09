@@ -1,5 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, ListChecks } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardCheck,
+    FolderGit2,
+    LayoutGrid,
+    ListChecks,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +21,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import checklistVersions from '@/routes/admin/checklists';
+import completenessReviews from '@/routes/reviewer/completeness';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -30,6 +37,14 @@ const adminNavItems: NavItem[] = [
         title: 'Checklist Administration',
         href: checklistVersions.index().url,
         icon: ListChecks,
+    },
+];
+
+const reviewerNavItems: NavItem[] = [
+    {
+        title: 'Completeness Review',
+        href: completenessReviews.dashboard().url,
+        icon: ClipboardCheck,
     },
 ];
 
@@ -49,9 +64,11 @@ const footerNavItems: NavItem[] = [
 export function AppSidebar() {
     const { auth } = usePage().props;
     const user = auth.user;
-    const items = user?.can_administer_checklist
-        ? [...mainNavItems, ...adminNavItems]
-        : mainNavItems;
+    const items = [
+        ...mainNavItems,
+        ...(user?.can_review_completeness ? reviewerNavItems : []),
+        ...(user?.can_administer_checklist ? adminNavItems : []),
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">

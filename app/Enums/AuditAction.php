@@ -24,6 +24,12 @@ enum AuditAction: string
     case ApplicationWithdrawn = 'application_withdrawn';
     case ApplicationReturned = 'application_returned';
 
+    // Application completeness review (administrative & documentary check only).
+    case CompletenessReviewStarted = 'completeness_review_started';
+    case CompletenessReviewReturned = 'completeness_review_returned';
+    case CompletenessReviewComplete = 'completeness_review_complete';
+    case ApplicationResubmitted = 'application_resubmitted';
+
     // Configurable checklist administration.
     case ChecklistVersionCreated = 'checklist_version_created';
     case ChecklistVersionCloned = 'checklist_version_cloned';

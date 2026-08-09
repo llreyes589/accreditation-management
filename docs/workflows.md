@@ -21,16 +21,19 @@
 Actors: Institution Administrator / Training Officer (submit), CART Reviewer
 (triage/review), PSP Administrator (oversight).
 
-States (proposed, configurable labels): `DRAFT → SUBMITTED → UNDER_REVIEW →
-INSPECTION_SCHEDULED → INSPECTION_COMPLETE → DECISION_PENDING → DECIDED →
-(renewal cycle)`.
+States (proposed, configurable labels): `DRAFT → SUBMITTED → UNDER_COMPLETENESS_REVIEW →
+RETURNED_FOR_REVISION → COMPLETE_FOR_INSPECTION → INSPECTION_SCHEDULED →
+INSPECTION_COMPLETE → DECISION_PENDING → DECIDED → (renewal cycle)`.
 
 Steps:
 1. Institution Admin creates Application in `DRAFT`; adds Program(s).
 2. Completes configurable ChecklistResponses; uploads versioned Documents.
 3. Submits → `SUBMITTED`. Audit: "application submitted by X".
-4. CART Reviewer reviews responses/docs; may return to `DRAFT` with comments
-   (configurable whether this is allowed).
+4. **Completeness Review** (see §2.1): a PSP/CART reviewer performs an
+   administrative and documentary check only — it never determines compliance,
+   eligibility, or an accreditation decision. It may return the application to
+   `RETURNED_FOR_REVISION` with mandatory comments, or mark it
+   `COMPLETE_FOR_INSPECTION`.
 5. Reviewer schedules Inspection → `INSPECTION_SCHEDULED`.
 6. Inspector conducts inspection (see Inspection workflow).
 7. On inspection close → `INSPECTION_COMPLETE` → `DECISION_PENDING`.
@@ -41,6 +44,43 @@ before SUBMIT; whether inspection is mandatory.
 
 **Fixed:** state transitions enforced server-side; audit on every transition;
 documents versioned on upload.
+
+### 2.1 Workflow: Completeness Review (administrative & documentary check)
+
+Actors: PSP Administrator / CART Reviewer (review), Institution Administrator /
+Training Officer (revise + resubmit).
+
+This is an **administrative and documentary check only**. It must not determine
+final compliance, accreditation eligibility, or approval, replace the inspection
+process, create an accreditation decision, or automatically schedule an
+inspection. (An extension point for future inspection scheduling is left in the
+service.)
+
+Allowed transitions (server-enforced):
+
+- `SUBMITTED → UNDER_COMPLETENESS_REVIEW` (reviewer begins)
+- `UNDER_COMPLETENESS_REVIEW → RETURNED_FOR_REVISION` (reviewer returns; **reviewer
+  comment required**)
+- `UNDER_COMPLETENESS_REVIEW → COMPLETE_FOR_INSPECTION` (reviewer marks complete;
+  **blocked while any blocking item remains**)
+- `RETURNED_FOR_REVISION → SUBMITTED` (applicant resubmits)
+- `RETURNED_FOR_REVISION → WITHDRAWN` (only if the existing withdrawal policy
+  permits it)
+
+Completeness calculation reuses the existing checklist and document calculators
+(`ApplicationProgressCalculator` + `DocumentCompletenessService`) via
+`ApplicationCompletenessService`. A blocking item is any outstanding mandatory
+checklist response, or a required supporting document that is missing, rejected,
+or has a replacement requested. The reviewer detail page surfaces a unified
+deficiency / missing-item list.
+
+Every status transition appends a `CompletenessReview` history row (the
+completeness report) and an audit-log entry. Reviewer comments on return are
+stored on the application and shown to the applicant.
+
+**Fixed:** transitions enforced server-side; reviewer comment mandatory on
+return; cannot mark complete while blocking items remain; every transition
+audited; the completeness review creates no accreditation decision.
 
 ## 3. Workflow: Inspection
 

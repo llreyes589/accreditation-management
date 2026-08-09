@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Accreditation\ApplicationController;
+use App\Http\Controllers\Accreditation\ApplicationCompletenessController;
 use App\Http\Controllers\Accreditation\ApplicationDocumentController;
 use App\Http\Controllers\Accreditation\ApplicationWizardController;
 use App\Http\Controllers\Accreditation\ChecklistVersionController;
@@ -54,7 +55,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('{document}/download', [ApplicationDocumentController::class, 'download'])->name('download');
                 Route::get('{document}/preview', [ApplicationDocumentController::class, 'preview'])->name('preview');
             });
+
+            /*
+             * Applicant resubmission of a returned-for-revision application.
+             */
+            Route::post('resubmit', [ApplicationController::class, 'resubmit'])
+                ->name('resubmit');
         });
+    });
+
+    /*
+     * Reviewer completeness review (PSP/CART only).
+     *
+     * Administrative and documentary check only — never an accreditation
+     * decision. Every action re-checks the policy, so a guessed id cannot move
+     * another institution's application.
+     */
+    Route::prefix('reviewer/completeness')->name('reviewer.completeness.')->group(function () {
+        Route::get('applications', [ApplicationCompletenessController::class, 'dashboard'])
+            ->name('dashboard');
+        Route::get('applications/{application}', [ApplicationCompletenessController::class, 'show'])
+            ->name('show');
+        Route::post('applications/{application}/begin', [ApplicationCompletenessController::class, 'beginReview'])
+            ->name('begin');
+        Route::post('applications/{application}/return', [ApplicationCompletenessController::class, 'returnForRevision'])
+            ->name('return');
+        Route::post('applications/{application}/complete', [ApplicationCompletenessController::class, 'markComplete'])
+            ->name('complete');
     });
 
     /*

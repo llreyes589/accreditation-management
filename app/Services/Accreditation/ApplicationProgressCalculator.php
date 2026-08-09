@@ -192,7 +192,7 @@ class ApplicationProgressCalculator
             ->count();
     }
 
-    private function isSatisfied(mixed $row): bool
+    public function isSatisfied(mixed $row): bool
     {
         $status = $row->applicant_status;
 

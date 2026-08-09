@@ -34,6 +34,13 @@ use Illuminate\Support\Carbon;
  * @property int|null $declaration_accepted_by
  * @property int|null $submitted_by
  * @property Carbon|null $submitted_at
+ * @property Carbon|null $under_review_at
+ * @property int|null $under_review_by
+ * @property Carbon|null $returned_at
+ * @property int|null $returned_by
+ * @property string|null $returned_comment
+ * @property Carbon|null $completed_for_inspection_at
+ * @property int|null $completed_for_inspection_by
  * @property Carbon|null $withdrawn_at
  * @property int|null $withdrawn_by
  * @property int|null $created_by
@@ -63,6 +70,13 @@ use Illuminate\Support\Carbon;
     'declaration_accepted_by',
     'submitted_by',
     'submitted_at',
+    'under_review_by',
+    'under_review_at',
+    'returned_by',
+    'returned_at',
+    'returned_comment',
+    'completed_for_inspection_by',
+    'completed_for_inspection_at',
     'withdrawn_at',
     'withdrawn_by',
     'created_by',
@@ -115,6 +129,30 @@ class AccreditationApplication extends Model
         return $this->belongsTo(User::class, 'withdrawn_by');
     }
 
+    /** @return BelongsTo<User, $this> */
+    public function underReviewBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'under_review_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function returnedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'returned_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function completedForInspectionBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'completed_for_inspection_by');
+    }
+
+    /** @return HasMany<CompletenessReview, $this> */
+    public function completenessReviews(): HasMany
+    {
+        return $this->hasMany(CompletenessReview::class, 'application_id')->orderBy('created_at');
+    }
+
     /** @return HasMany<ApplicationRequirement, $this> */
     public function requirements(): HasMany
     {
@@ -150,6 +188,31 @@ class AccreditationApplication extends Model
     }
 
     /**
+     * Applications waiting for or undergoing reviewer completeness review.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeAwaitingCompletenessReview(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            ApplicationStatus::Submitted,
+            ApplicationStatus::UnderCompletenessReview,
+        ]);
+    }
+
+    /**
+     * Applications returned to the institution for revision.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeReturnedForRevision(Builder $query): Builder
+    {
+        return $query->where('status', ApplicationStatus::ReturnedForRevision);
+    }
+
+    /**
      * Whether the applicant may still edit this application.
      */
     public function isEditableByApplicant(): bool
@@ -180,6 +243,9 @@ class AccreditationApplication extends Model
             'curriculum_training' => 'array',
             'declaration_accepted_at' => 'datetime',
             'submitted_at' => 'datetime',
+            'under_review_at' => 'datetime',
+            'returned_at' => 'datetime',
+            'completed_for_inspection_at' => 'datetime',
             'withdrawn_at' => 'datetime',
         ];
     }
